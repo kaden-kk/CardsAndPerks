@@ -19,13 +19,13 @@ export interface Benefit {
   notes: string | null
 }
 
-export interface TransferPartner {
+export interface Redemption {
   id: string
   card_id: string
-  partner_name: string
-  partner_type: 'airline' | 'hotel'
-  transfer_ratio: number
-  transfer_time: string
+  redemption_type: 'transfer' | 'cash' | 'travel_portal'
+  partner_name: string | null
+  partner_type: 'airline' | 'hotel' | 'cash' | 'travel_portal' | null
+  value: number
   notes: string | null
 }
 
@@ -36,6 +36,6 @@ export interface UserCard {
   added_at: string
   card: Card & {
     benefits: Benefit[]
-    transfer_partners: TransferPartner[]
+    redemptions: Redemption[]
   }
 }

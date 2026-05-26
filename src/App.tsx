@@ -1,5 +1,6 @@
 import { useAuth } from './hooks/useAuth'
 import AuthForm from './components/AuthForm'
+import CardsPage from './pages/CardsPage'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -13,10 +14,5 @@ export default function App() {
   }
 
   if (!user) return <AuthForm />
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <p className="text-gray-700">Logged in as {user.email}</p>
-    </div>
-  )
+  return <CardsPage />
 }
