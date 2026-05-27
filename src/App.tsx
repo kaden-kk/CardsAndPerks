@@ -7,7 +7,7 @@ import OptimizerPage from './pages/OptimizerPage'
 type Page = 'cards' | 'optimizer'
 
 export default function App() {
-  const { user, loading } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const [page, setPage] = useState<Page>('cards')
 
   if (loading) {
@@ -33,7 +33,7 @@ export default function App() {
                 : 'text-gray-500 hover:text-gray-800'
             }`}
           >
-            My cards
+            My Cards
           </button>
           <button
             onClick={() => setPage('optimizer')}
@@ -49,7 +49,7 @@ export default function App() {
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-500">{user.email}</span>
           <button
-            onClick={() => useAuth().signOut()}
+            onClick={signOut}
             className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
           >
             Sign out

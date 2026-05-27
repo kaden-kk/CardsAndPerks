@@ -3,6 +3,7 @@ import BenefitBadge from './BenefitBadge'
 
 interface Props {
   userCard: UserCard
+  onRemove: (userCardId: string) => void
 }
 
 const issuerColors: Record<string, string> = {
@@ -79,7 +80,7 @@ function RedemptionSection({ redemptions }: { redemptions: Redemption[] }) {
   )
 }
 
-export default function CardItem({ userCard }: Props) {
+export default function CardItem({ userCard, onRemove }: Props) {
   const { card } = userCard
   const color = issuerColors[card.issuer] ?? 'bg-gray-600'
 
@@ -87,14 +88,25 @@ export default function CardItem({ userCard }: Props) {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
       <div className={`${color} px-6 py-5`}>
-        <p className="text-white/70 text-xs font-medium uppercase tracking-wide">{card.issuer}</p>
-        <h3 className="text-white font-semibold text-lg mt-0.5">{card.name}</h3>
-        <div className="flex items-center gap-3 mt-3">
-          <span className="text-white/80 text-sm">{card.point_currency}</span>
-          <span className="text-white/40">·</span>
-          <span className="text-white/80 text-sm">
-            {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
-          </span>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-white/70 text-xs font-medium uppercase tracking-wide">{card.issuer}</p>
+            <h3 className="text-white font-semibold text-lg mt-0.5">{card.name}</h3>
+            <div className="flex items-center gap-3 mt-3">
+              <span className="text-white/80 text-sm">{card.point_currency}</span>
+              <span className="text-white/40">·</span>
+              <span className="text-white/80 text-sm">
+                {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => onRemove(userCard.id)}
+            className="text-white/50 hover:text-white/90 transition-colors text-xl leading-none"
+            title="Remove card"
+          >
+            ×
+          </button>
         </div>
       </div>
 
