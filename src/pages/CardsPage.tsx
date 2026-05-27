@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
-import Navbar from '../components/Navbar'
 import CardItem from '../components/CardItem'
 import AddCardModal from '../components/AddCardModal'
 
@@ -19,8 +18,6 @@ export default function CardsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
       <main className="max-w-6xl mx-auto px-6 py-8">
 
         <div className="flex items-center justify-between mb-8">
