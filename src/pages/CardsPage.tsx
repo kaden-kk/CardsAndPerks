@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
+import { supabase } from '../lib/supabase'
 import CardItem from '../components/CardItem'
 import AddCardModal from '../components/AddCardModal'
 
@@ -13,6 +14,11 @@ export default function CardsPage() {
     refetch()
     setShowModal(false)
   }, [refetch])
+
+  const handleRemove = useCallback(async (userCardId: string) => {
+  await supabase.from('user_cards').delete().eq('id', userCardId)
+  refetch()
+}, [refetch])
 
   const existingCardIds = userCards.map(uc => uc.card_id)
 
@@ -64,7 +70,7 @@ export default function CardsPage() {
         {!loading && userCards.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userCards.map(userCard => (
-              <CardItem key={userCard.id} userCard={userCard} />
+              <CardItem key={userCard.id} userCard={userCard} onRemove={handleRemove} />
             ))}
           </div>
         )}
