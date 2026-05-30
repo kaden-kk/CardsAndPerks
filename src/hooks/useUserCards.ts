@@ -12,17 +12,18 @@ export function useUserCards(userId: string) {
     setLoading(true)
 
     const { data, error } = await supabase
-        .from('user_cards')
-        .select(`
-            *,
-            card:cards (
-            *,
-            benefits (*),
-            redemptions (*)
-            )
-        `)
-        .eq('user_id', userId)
-        .order('added_at', { ascending: false })
+      .from('user_cards')
+      .select(`
+        *,
+        card:cards (
+          *,
+          benefits (*),
+          redemptions (*),
+          perks (*)
+        )
+      `)
+      .eq('user_id', userId)
+      .order('added_at', { ascending: false })
 
     if (error) setError(error.message)
     else setUserCards(data ?? [])
