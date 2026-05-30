@@ -29,6 +29,15 @@ export interface Redemption {
   notes: string | null
 }
 
+export interface Perk {
+  id: string
+  card_id: string
+  category: string
+  title: string
+  description: string
+  value: string | null
+}
+
 export interface UserCard {
   id: string
   user_id: string
@@ -37,5 +46,6 @@ export interface UserCard {
   card: Card & {
     benefits: Benefit[]
     redemptions: Redemption[]
+    perks: Perk[]
   }
 }

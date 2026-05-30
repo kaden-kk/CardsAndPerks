@@ -1,4 +1,5 @@
-import type { UserCard, Redemption } from '../types/index'
+import { useState } from 'react'
+import type { UserCard, Perk } from '../types/index'
 import BenefitBadge from './BenefitBadge'
 
 interface Props {
@@ -15,65 +16,70 @@ const issuerColors: Record<string, string> = {
   'Wells Fargo': 'bg-yellow-600',
 }
 
-function RedemptionSection({ redemptions }: { redemptions: Redemption[] }) {
-  const airlines = redemptions.filter(r => r.partner_type === 'airline')
-  const hotels = redemptions.filter(r => r.partner_type === 'hotel')
-  const portal = redemptions.filter(r => r.redemption_type === 'travel_portal')
-  const cash = redemptions.filter(r => r.redemption_type === 'cash')
+const PERK_ICONS: Record<string, string> = {
+  'purchase_protection': '🛡️',
+  'extended_warranty': '🔧',
+  'travel_protection': '✈️',
+  'cell_phone': '📱',
+  'rental_car': '🚗',
+  'travel_assistance': '🆘',
+  'credits': '💰',
+  'lounge_access': '🛋️',
+  'cashback_match': '💵',
+}
+
+function PerksSection({ perks }: { perks: Perk[] }) {
+  const [expanded, setExpanded] = useState(false)
+
+  const grouped = perks.reduce<Record<string, Perk[]>>((acc, perk) => {
+    if (!acc[perk.category]) acc[perk.category] = []
+    acc[perk.category]!.push(perk)
+    return acc
+  }, {})
+
 
   return (
-    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 space-y-4">
-      <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Redemptions</p>
-
-      {portal.length > 0 && (
-        <div>
-          <p className="text-xs text-gray-400 mb-1.5">Travel portal</p>
-          <div className="flex flex-wrap gap-1.5">
-            {portal.map(r => (
-              <span key={r.id} className="text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full">
-                {r.partner_name} · {(r.value * 100).toFixed(2)}cpp
-              </span>
-            ))}
-          </div>
+    <div className="border-t border-gray-100">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500">Hidden perks</span>
+          <span className="text-xs bg-blue-50 text-blue-600 font-medium px-2 py-0.5 rounded-full">
+            {perks.length}
+          </span>
         </div>
-      )}
+        <span className="text-gray-400 text-xs">{expanded ? '▲' : '▼'}</span>
+      </button>
 
-      {airlines.length > 0 && (
-        <div>
-          <p className="text-xs text-gray-400 mb-1.5">Airlines</p>
-          <div className="flex flex-wrap gap-1.5">
-            {airlines.map(r => (
-              <span key={r.id} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full">
-                {r.partner_name}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {hotels.length > 0 && (
-        <div>
-          <p className="text-xs text-gray-400 mb-1.5">Hotels</p>
-          <div className="flex flex-wrap gap-1.5">
-            {hotels.map(r => (
-              <span key={r.id} className="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full">
-                {r.partner_name}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {cash.length > 0 && (
-        <div>
-          <p className="text-xs text-gray-400 mb-1.5">Cash back</p>
-          <div className="flex flex-wrap gap-1.5">
-            {cash.map(r => (
-              <span key={r.id} className="text-xs bg-green-50 text-green-700 px-2.5 py-1 rounded-full">
-                {(r.value * 100).toFixed(2)}cpp
-              </span>
-            ))}
-          </div>
+      {expanded && (
+        <div className="px-6 pb-4 space-y-4">
+          {Object.entries(grouped).map(([category, categoryPerks]) => (
+            <div key={category}>
+              <div className="flex items-center gap-2 mb-2">
+                <span>{PERK_ICONS[category] ?? '✨'}</span>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide capitalize">
+                  {category.replace(/_/g, ' ')}
+                </p>
+              </div>
+              <div className="space-y-2">
+                {categoryPerks.map(perk => (
+                  <div key={perk.id} className="bg-gray-50 rounded-lg px-3 py-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-gray-800">{perk.title}</p>
+                      {perk.value && (
+                        <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full flex-shrink-0">
+                          {perk.value}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">{perk.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -87,6 +93,7 @@ export default function CardItem({ userCard, onRemove }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
+      {/* Card header */}
       <div className={`${color} px-6 py-5`}>
         <div className="flex items-start justify-between">
           <div>
@@ -110,6 +117,7 @@ export default function CardItem({ userCard, onRemove }: Props) {
         </div>
       </div>
 
+      {/* Earn rates */}
       <div className="px-6 py-4">
         <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">Earn rates</p>
         {card.benefits.map(benefit => (
@@ -117,9 +125,8 @@ export default function CardItem({ userCard, onRemove }: Props) {
         ))}
       </div>
 
-      {card.redemptions.length > 0 && (
-        <RedemptionSection redemptions={card.redemptions} />
-      )}
+      {/* Perks dropdown */}
+      {card.perks.length > 0 && <PerksSection perks={card.perks} />}
 
     </div>
   )
