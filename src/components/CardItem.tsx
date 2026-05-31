@@ -59,7 +59,7 @@ function PerksSection({ perks }: { perks: Perk[] }) {
             <div key={category}>
               <div className="flex items-center gap-2 mb-2">
                 <span>{PERK_ICONS[category] ?? '✨'}</span>
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide capitalize">
+                <p className="text-xs font-medium text-gray-400 tracking-wide capitalize">
                   {category.replace(/_/g, ' ')}
                 </p>
               </div>
