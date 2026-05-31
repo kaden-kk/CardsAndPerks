@@ -13,7 +13,7 @@ export default function OptimizerPage() {
       <main className="max-w-6xl mx-auto px-6 py-8">
 
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Optimizer</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Optimal Spend</h1>
           <p className="text-gray-500 text-sm mt-1">
             The best card from your wallet for every spend category
           </p>

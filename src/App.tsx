@@ -28,7 +28,7 @@ export default function App() {
         <div className="flex items-center gap-1">
           {([
             { key: 'cards', label: 'My Cards' },
-            { key: 'optimizer', label: 'Optimal Spending' },
+            { key: 'optimizer', label: 'Optimal Spend' },
             { key: 'partners', label: 'Transfer Partners' },
           ] as { key: Page; label: string }[]).map(tab => (
             <button
