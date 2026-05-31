@@ -1,3 +1,4 @@
+import { Utensils, ShoppingCart, Plane, Hotel, Car, Tv, Pill, Fuel, Home, RefreshCw, CreditCard } from 'lucide-react'
 import type { OptimizedCategory } from '../lib/optimizer'
 
 interface Props {
@@ -22,36 +23,34 @@ const issuerText: Record<string, string> = {
   'Wells Fargo': 'text-yellow-700',
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-  'dining': '🍽️',
-  'groceries': '🛒',
-  'travel': '✈️',
-  'flights': '✈️',
-  'hotels': '🏨',
-  'car rentals': '🚗',
-  'streaming': '📺',
-  'drugstores': '💊',
-  'gas': '⛽',
-  'rent': '🏠',
-  'rotating': '🔄',
-  'everything else': '💳',
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  'dining': <Utensils size={18} />,
+  'groceries': <ShoppingCart size={18} />,
+  'travel': <Plane size={18} />,
+  'flights': <Plane size={18} />,
+  'hotels': <Hotel size={18} />,
+  'car rentals': <Car size={18} />,
+  'streaming': <Tv size={18} />,
+  'drugstores': <Pill size={18} />,
+  'gas': <Fuel size={18} />,
+  'rent': <Home size={18} />,
+  'rotating': <RefreshCw size={18} />,
+  'everything else': <CreditCard size={18} />,
 }
 
-interface Props {
-  hideNav?: boolean
-}
-
-export default function OptimizerCard({ result, hideNav }: Props) {
+export default function OptimizerCard({ result }: Props) {
   const colorClass = issuerColors[result.issuer] ?? 'border-gray-200 bg-gray-50'
   const textClass = issuerText[result.issuer] ?? 'text-gray-700'
-  const icon = CATEGORY_ICONS[result.category] ?? '💳'
+  const icon = CATEGORY_ICONS[result.category] ?? <CreditCard size={18} />
   const returnPct = (result.effectiveReturn * 100).toFixed(2)
 
   return (
     <div className={`rounded-xl border p-4 ${colorClass}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{icon}</span>
+          <div className="text-gray-600">
+            {icon}
+          </div>
           <div>
             <p className="text-sm font-medium text-gray-900 capitalize">{result.category}</p>
             <p className={`text-xs font-medium mt-0.5 ${textClass}`}>{result.bestCard}</p>

@@ -1,6 +1,7 @@
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
 import type { Redemption } from '../types/index'
+import { Plane, Hotel } from 'lucide-react'
 
 interface EcosystemGroup {
   issuer: string
@@ -105,7 +106,8 @@ export default function PartnersPage() {
                   {ecosystem.airlines.length > 0 && (
                     <div>
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-                        ✈️ Airlines
+                        <Plane className="w-4 h-4 inline-block mr-2" />
+                        Airlines
                       </p>
                       <div className="space-y-1">
                         {ecosystem.airlines
@@ -126,7 +128,8 @@ export default function PartnersPage() {
                   {ecosystem.hotels.length > 0 && (
                     <div>
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-                        🏨 Hotels
+                        <Hotel className="w-4 h-4 inline-block mr-2" />
+                        Hotels
                       </p>
                       <div className="space-y-1">
                         {ecosystem.hotels
