@@ -26,7 +26,12 @@ export function useUserCards(userId: string) {
       .order('added_at', { ascending: false })
 
     if (error) setError(error.message)
-    else setUserCards(data ?? [])
+    else {
+      const sorted = (data ?? []).sort((a, b) =>
+        a.card.name.localeCompare(b.card.name)
+      )
+      setUserCards(sorted)
+    }
     setLoading(false)
   }, [userId])
 
