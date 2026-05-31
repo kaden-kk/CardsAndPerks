@@ -29,6 +29,37 @@ function getRatioColor(value: number): string {
   return 'text-gray-400'
 }
 
+function PartnerList({ partners, type }: { partners: Redemption[], type: 'airline' | 'hotel' }) {
+  if (partners.length === 0) return null
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        {type === 'airline'
+          ? <Plane size={14} className="text-blue-500" />
+          : <Hotel size={14} className="text-amber-500" />
+        }
+        <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+          {type === 'airline' ? 'Airlines' : 'Hotels'}
+        </p>
+      </div>
+      <div className="space-y-1">
+        {partners
+          .sort((a, b) => (a.partner_name ?? '').localeCompare(b.partner_name ?? ''))
+          .map(partner => (
+            <div key={partner.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${type === 'airline' ? 'bg-blue-400' : 'bg-amber-400'}`} />
+              <span className="text-sm text-gray-700 flex-1">{partner.partner_name}</span>
+              <span className={`text-xs font-medium ${getRatioColor(partner.value)}`}>
+                {formatRatio(partner.value)}
+              </span>
+            </div>
+          ))}
+      </div>
+    </div>
+  )
+}
+
 export default function PartnersPage() {
   const { user } = useAuth()
   const { userCards, loading } = useUserCards(user?.id ?? '')
@@ -68,7 +99,7 @@ export default function PartnersPage() {
       <main className="max-w-6xl mx-auto px-6 py-8">
 
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Transfer Partners</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Transfer partners</h1>
           <p className="text-gray-500 text-sm mt-1">
             All transfer partners grouped by your points ecosystem
           </p>
@@ -89,65 +120,26 @@ export default function PartnersPage() {
         <div className="space-y-6">
           {Object.values(ecosystems).map(ecosystem => {
             const color = issuerColors[ecosystem.issuer] ?? 'bg-gray-600'
+            const hasBoth = ecosystem.airlines.length > 0 && ecosystem.hotels.length > 0
 
             return (
               <div key={ecosystem.pointCurrency} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
                 <div className={`${color} px-6 py-4`}>
-                  <p className="text-white/70 text-xs font-medium uppercase tracking-wide">{ecosystem.issuer}</p>
+                  <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{ecosystem.issuer}</p>
                   <h2 className="text-white font-semibold text-lg mt-0.5">{ecosystem.pointCurrency}</h2>
-                  <p className="text-white/60 text-xs mt-1">
-                    {ecosystem.airlines.length} airline{ecosystem.airlines.length !== 1 ? 's' : ''} · {ecosystem.hotels.length} hotel{ecosystem.hotels.length !== 1 ? 's' : ''}
+                  <p className="text-white/50 text-xs mt-1">
+                    {ecosystem.airlines.length} airline{ecosystem.airlines.length !== 1 ? 's' : ''}
+                    {hasBoth && ' · '}
+                    {ecosystem.hotels.length > 0 && `${ecosystem.hotels.length} hotel${ecosystem.hotels.length !== 1 ? 's' : ''}`}
                   </p>
                 </div>
 
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                  {ecosystem.airlines.length > 0 && (
-                    <div>
-                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-                        <Plane className="w-4 h-4 inline-block mr-2" />
-                        Airlines
-                      </p>
-                      <div className="space-y-1">
-                        {ecosystem.airlines
-                          .sort((a, b) => (a.partner_name ?? '').localeCompare(b.partner_name ?? ''))
-                          .map(partner => (
-                            <div key={partner.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                              <div className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 flex-1">{partner.partner_name}</span>
-                              <span className={`text-xs font-medium ${getRatioColor(partner.value)}`}>
-                                {formatRatio(partner.value)}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {ecosystem.hotels.length > 0 && (
-                    <div>
-                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-                        <Hotel className="w-4 h-4 inline-block mr-2" />
-                        Hotels
-                      </p>
-                      <div className="space-y-1">
-                        {ecosystem.hotels
-                          .sort((a, b) => (a.partner_name ?? '').localeCompare(b.partner_name ?? ''))
-                          .map(partner => (
-                            <div key={partner.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                              <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 flex-1">{partner.partner_name}</span>
-                              <span className={`text-xs font-medium ${getRatioColor(partner.value)}`}>
-                                {formatRatio(partner.value)}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
+                <div className={`p-6 ${hasBoth ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}`}>
+                  <PartnerList partners={ecosystem.airlines} type="airline" />
+                  <PartnerList partners={ecosystem.hotels} type="hotel" />
                 </div>
+
               </div>
             )
           })}
