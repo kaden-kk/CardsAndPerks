@@ -99,7 +99,7 @@ export default function PartnersPage() {
       <main className="max-w-6xl mx-auto px-6 py-8">
 
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Transfer partners</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Transfer Partners</h1>
           <p className="text-gray-500 text-sm mt-1">
             All transfer partners grouped by your points ecosystem
           </p>

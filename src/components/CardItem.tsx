@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   Shield, Wrench, Plane, Smartphone, Car, AlertCircle,
   DollarSign, Coffee, CreditCard, ChevronDown, ChevronUp,
-  Utensils, ShoppingCart, Hotel, Tv, Pill, Fuel, Home, RefreshCw, X
+  Utensils, ShoppingCart, Hotel, Tv, Pill, Fuel, Home, RefreshCw, X, Globe,
 } from 'lucide-react'
 import type { UserCard, Perk } from '../types/index'
 
@@ -30,6 +30,7 @@ const PERK_ICONS: Record<string, React.ReactNode> = {
   'credits': <DollarSign size={14} />,
   'lounge_access': <Coffee size={14} />,
   'cashback_match': <CreditCard size={14} />,
+  'foreign_transaction': <Globe size={14} />,
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -45,6 +46,30 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'rent': <Home size={14} />,
   'rotating': <RefreshCw size={14} />,
   'everything else': <CreditCard size={14} />,
+}
+
+const CATEGORY_DISPLAY: Record<string, string> = {
+  'dining': 'Dining',
+  'groceries': 'Groceries',
+  'travel': 'Travel',
+  'flights': 'Flights',
+  'hotels': 'Hotels',
+  'car rentals': 'Car Rentals',
+  'streaming': 'Streaming',
+  'drugstores': 'Drugstores',
+  'gas': 'Gas',
+  'rent': 'Rent',
+  'rotating': 'Rotating',
+  'everything else': 'Everything Else',
+  'chase travel portal': 'Chase Travel',
+  'chase travel portal - flights': 'Chase Flights',
+  'chase travel portal - hotels': 'Chase Hotels',
+  'capital one travel portal - flights': 'Capital One Flights',
+  'capital one travel portal - hotels': 'Capital One Hotels',
+  'amex travel portal - flights': 'Amex Flights',
+  'amex travel portal - hotels': 'Amex Hotels',
+  'amex travel portal - car rentals': 'Amex Car Rentals',
+  'citi travel portal': 'Citi Travel',
 }
 
 interface PerkModalProps {
@@ -160,10 +185,14 @@ export default function CardItem({ userCard, onRemove }: Props) {
               {card.benefits.map(benefit => (
                 <div key={benefit.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 text-gray-500 min-w-0">
+                    <div className="flex items-center gap-1.5 text-gray-500 min-w-0">
                     <span className="flex-shrink-0">
                       {CATEGORY_ICONS[benefit.category] ?? <CreditCard size={14} />}
                     </span>
-                    <span className="text-xs text-gray-600 truncate capitalize">{benefit.category}</span>
+                    <span className="text-xs text-gray-600 truncate capitalize">
+                      {CATEGORY_DISPLAY[benefit.category] ?? benefit.category}
+                    </span>
+                  </div>
                   </div>
                   <span className="text-xs font-semibold text-gray-900 flex-shrink-0">{benefit.earn_rate}x</span>
                 </div>
