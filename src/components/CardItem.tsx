@@ -66,6 +66,7 @@ const CATEGORY_DISPLAY: Record<string, string> = {
   'chase travel portal - hotels': 'Chase Hotels',
   'capital one travel portal - flights': 'Capital One Flights',
   'capital one travel portal - hotels': 'Capital One Hotels',
+  'capital one travel portal - car rentals': 'Capital One Car Rentals',
   'amex travel portal - flights': 'Amex Flights',
   'amex travel portal - hotels': 'Amex Hotels',
   'amex travel portal - car rentals': 'Amex Car Rentals',

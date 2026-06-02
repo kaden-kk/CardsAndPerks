@@ -32,6 +32,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'chase travel portal - hotels': <Hotel size={18} />,
   'capital one travel portal - flights': <Plane size={18} />,
   'capital one travel portal - hotels': <Hotel size={18} />,
+  'capital one travel portal - car rentals': <Car size={18} />,
   'citi travel portal': <Plane size={18} />,
   'amex travel portal - car rentals': <Car size={18} />,
   'amex travel portal - flights': <Plane size={18} />,
