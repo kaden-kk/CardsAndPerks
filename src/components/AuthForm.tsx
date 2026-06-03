@@ -1,6 +1,21 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth.js'
 
+interface Props {
+  onBack?: () => void
+}
+
+export default function AuthForm({ onBack }: Props) {
+  // add this below the header
+  {onBack && (
+    <button
+      onClick={onBack}
+      className="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-block transition-colors"
+    >
+      ← Back
+    </button>
+  )}
+  
 export default function AuthForm() {
   const { signIn, signUp } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
