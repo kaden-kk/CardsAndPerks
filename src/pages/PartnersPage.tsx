@@ -1,3 +1,4 @@
+import PartnersSkeleton from '../components/skeletons/PartnerSkeleton'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
 import type { Redemption } from '../types/index'
@@ -104,12 +105,8 @@ export default function PartnersPage() {
             All transfer partners grouped by your points ecosystem
           </p>
         </div>
-
-        {loading && (
-          <div className="flex items-center justify-center py-24">
-            <p className="text-gray-400 text-sm">Loading...</p>
-          </div>
-        )}
+    
+        {loading && <PartnersSkeleton />}
 
         {!loading && Object.keys(ecosystems).length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">

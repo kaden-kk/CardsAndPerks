@@ -2,6 +2,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
 import { optimizeCards } from '../lib/optimizer'
 import OptimizerCard from '../components/OptimizerCard'
+import OptimizerSkeleton from '../components/skeletons/OptimizerSkeleton'
 
 export default function OptimizerPage() {
   const { user } = useAuth()
@@ -19,11 +20,7 @@ export default function OptimizerPage() {
           </p>
         </div>
 
-        {loading && (
-          <div className="flex items-center justify-center py-24">
-            <p className="text-gray-400 text-sm">Calculating...</p>
-          </div>
-        )}
+        {loading && <OptimizerSkeleton />}
 
         {!loading && userCards.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">

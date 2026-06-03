@@ -2,8 +2,10 @@ import { useState, useCallback } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
 import { supabase } from '../lib/supabase'
+import {CreditCardIcon} from 'lucide-react'
 import CardItem from '../components/CardItem'
 import AddCardModal from '../components/AddCardModal'
+import CardsSkeleton from '../components/skeletons/CardsSkeleton'
 
 export default function CardsPage() {
   const { user } = useAuth()
@@ -42,16 +44,12 @@ export default function CardsPage() {
           </button>
         </div>
 
-        {loading && (
-          <div className="flex items-center justify-center py-24">
-            <p className="text-gray-400 text-sm">Loading your cards...</p>
-          </div>
-        )}
+        {loading && <CardsSkeleton />}
 
         {!loading && userCards.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4">
-              <span className="text-2xl">💳</span>
+              <span className="text-2xl"><CreditCardIcon /></span>
             </div>
             <h2 className="text-lg font-medium text-gray-900 mb-1">No cards yet</h2>
             <p className="text-gray-500 text-sm mb-6 max-w-xs">

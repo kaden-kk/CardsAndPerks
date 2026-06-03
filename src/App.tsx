@@ -7,17 +7,21 @@ import PartnersPage from './pages/PartnersPage'
 import LandingPage from './pages/LandingPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
-import DeleteAccountModal from './components/DeleteAccountModal'
+import Avatar from './components/Avatar'
+import SettingsPanel from './components/SettingsPanel'
+import { useProfile } from './hooks/useProfile'
+import NavSkeleton from './components/skeletons/NavSkeleton'
 
 type Page = 'cards' | 'optimizer' | 'partners'
 type StaticPage = 'privacy' | 'terms' | null
 
 export default function App() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading } = useAuth()
   const [page, setPage] = useState<Page>('cards')
   const [showAuth, setShowAuth] = useState(false)
   const [staticPage, setStaticPage] = useState<StaticPage>(null)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const { profile } = useProfile(user?.id ?? '')
 
   if (staticPage === 'privacy') return <PrivacyPage onBack={() => setStaticPage(null)} />
   if (staticPage === 'terms') return <TermsPage onBack={() => setStaticPage(null)} />
@@ -68,29 +72,28 @@ export default function App() {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500">{user?.email}</span>
-          <button
-            onClick={signOut}
-            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
-          >
-            Sign out
-          </button>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="text-sm text-red-400 hover:text-red-600 transition-colors"
-          >
-            Delete account
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            {profile ? (
+              <Avatar
+                email={user?.email ?? ''}
+                color={profile.avatar_color}
+                onClick={() => setShowSettings(true)}
+              />
+            ) : (
+              <NavSkeleton />
+            )}
+          </div>
         </div>
-        {showDeleteModal && (
-          <DeleteAccountModal onClose={() => setShowDeleteModal(false)} />
-        )}
       </nav>
 
       {page === 'cards' && <CardsPage />}
       {page === 'optimizer' && <OptimizerPage />}
       {page === 'partners' && <PartnersPage />}
+
+      {showSettings && (
+        <SettingsPanel onClose={() => setShowSettings(false)} />
+      )}
     </div>
   )
 }
