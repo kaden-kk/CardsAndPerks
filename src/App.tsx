@@ -7,6 +7,7 @@ import PartnersPage from './pages/PartnersPage'
 import LandingPage from './pages/LandingPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
+import DeleteAccountModal from './components/DeleteAccountModal'
 
 type Page = 'cards' | 'optimizer' | 'partners'
 type StaticPage = 'privacy' | 'terms' | null
@@ -16,6 +17,7 @@ export default function App() {
   const [page, setPage] = useState<Page>('cards')
   const [showAuth, setShowAuth] = useState(false)
   const [staticPage, setStaticPage] = useState<StaticPage>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   if (staticPage === 'privacy') return <PrivacyPage onBack={() => setStaticPage(null)} />
   if (staticPage === 'terms') return <TermsPage onBack={() => setStaticPage(null)} />
@@ -74,7 +76,16 @@ export default function App() {
           >
             Sign out
           </button>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="text-sm text-red-400 hover:text-red-600 transition-colors"
+          >
+            Delete account
+          </button>
         </div>
+        {showDeleteModal && (
+          <DeleteAccountModal onClose={() => setShowDeleteModal(false)} />
+        )}
       </nav>
 
       {page === 'cards' && <CardsPage />}

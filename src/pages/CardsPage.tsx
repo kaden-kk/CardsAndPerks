@@ -12,7 +12,6 @@ export default function CardsPage() {
 
   const handleCardAdded = useCallback(() => {
     refetch()
-    setShowModal(false)
   }, [refetch])
 
   const handleRemove = useCallback(async (userCardId: string) => {

@@ -34,7 +34,7 @@ export default function PrivacyPage({ onBack }: Props) {
           </section>
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Deleting your data</h2>
-            <p className="text-sm leading-relaxed">You can remove any card from your account at any time. To delete your account and all associated data, contact us and we will remove it within 30 days.</p>
+            <p className="text-sm leading-relaxed">You can remove any card from your account at any time. You can also delete your account directly from your account settings. When you delete your account, all associated personal data will be permanently removed from our systems. </p>
           </section>
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Contact</h2>

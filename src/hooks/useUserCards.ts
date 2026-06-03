@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import type { UserCard } from '../types/index'
+import type { Benefit } from '../types/index'
 
 export function useUserCards(userId: string) {
   const [userCards, setUserCards] = useState<UserCard[]>([])
@@ -30,6 +31,11 @@ export function useUserCards(userId: string) {
       const sorted = (data ?? []).sort((a, b) =>
         a.card.name.localeCompare(b.card.name)
       )
+
+      sorted.forEach(userCard => {
+        userCard.card.benefits.sort((a : Benefit, b : Benefit) => b.earn_rate - a.earn_rate)
+      })
+
       setUserCards(sorted)
     }
     setLoading(false)

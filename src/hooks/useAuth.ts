@@ -36,5 +36,11 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  return { user, session, loading, signIn, signUp, signOut }
+  const deleteAccount = async () => {
+    const { error } = await supabase.rpc('delete_user')
+    if (!error) await supabase.auth.signOut()
+    return { error }
+  }
+
+  return { user, session, loading, signIn, signUp, signOut, deleteAccount }
 }

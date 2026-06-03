@@ -23,6 +23,7 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
   const { cards, loading } = useAllCards()
   const [search, setSearch] = useState('')
   const [adding, setAdding] = useState<string | null>(null)
+  const [recentlyAdded, setRecentlyAdded] = useState<string | null>(null)
 
   const filtered = cards.filter(card =>
     !existingCardIds.includes(card.id) &&
@@ -37,7 +38,9 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
       card_id: card.id,
     })
     onCardAdded()
+    setRecentlyAdded(card.id)
     setAdding(null)
+    setTimeout(() => setRecentlyAdded(null), 2000)
   }
 
   return (
@@ -81,7 +84,7 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
           {loading && (
             <p className="text-sm text-gray-400 text-center py-8">Loading cards...</p>
           )}
-
+          
           {!loading && filtered.length === 0 && (
             <p className="text-sm text-gray-400 text-center py-8">
               {search ? 'No cards match your search' : 'All available cards have been added'}
@@ -91,7 +94,7 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
           {filtered.map(card => {
             const color = issuerColors[card.issuer] ?? 'bg-gray-600'
             const isAdding = adding === card.id
-
+            
             return (
               <button
                 key={card.id}
@@ -106,8 +109,14 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
                     {card.issuer} · {card.point_currency} · {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
                   </p>
                 </div>
-                <span className="text-sm text-blue-600 font-medium flex-shrink-0">
-                  {isAdding ? 'Adding...' : 'Add'}
+                <span className="text-sm font-medium flex-shrink-0">
+                  {recentlyAdded === card.id ? (
+                    <span className="text-green-600">✓ Added</span>
+                  ) : isAdding ? (
+                    <span className="text-blue-400">Adding...</span>
+                  ) : (
+                    <span className="text-blue-600">Add</span>
+                  )}
                 </span>
               </button>
             )

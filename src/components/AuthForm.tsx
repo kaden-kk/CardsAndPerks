@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../hooks/useAuth.js'
+import { useAuth } from '../hooks/useAuth'
 
 interface Props {
   onBack?: () => void
@@ -10,7 +10,9 @@ export default function AuthForm({ onBack }: Props) {
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -18,6 +20,18 @@ export default function AuthForm({ onBack }: Props) {
     e.preventDefault()
     setError(null)
     setMessage(null)
+    setPasswordError(null)
+
+    if (isSignUp && password !== confirmPassword) {
+      setPasswordError('Passwords do not match')
+      return
+    }
+
+    if (isSignUp && password.length < 8) {
+      setPasswordError('Password must be at least 8 characters')
+      return
+    }
+
     setLoading(true)
 
     if (isSignUp) {
@@ -32,18 +46,26 @@ export default function AuthForm({ onBack }: Props) {
     setLoading(false)
   }
 
-  {onBack && (
-    <button
-      onClick={onBack}
-      className="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-block transition-colors"
-    >
-      ← Back
-    </button>
-  )}
+  const handleToggleMode = () => {
+    setIsSignUp(!isSignUp)
+    setError(null)
+    setMessage(null)
+    setPasswordError(null)
+    setConfirmPassword('')
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-2xl shadow-sm w-full max-w-md">
+
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-block transition-colors"
+          >
+            ← Back
+          </button>
+        )}
 
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">
@@ -79,6 +101,26 @@ export default function AuthForm({ onBack }: Props) {
             />
           </div>
 
+          {isSignUp && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+          )}
+
+          {passwordError && (
+            <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{passwordError}</p>
+          )}
+
           {error && (
             <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{error}</p>
           )}
@@ -99,7 +141,7 @@ export default function AuthForm({ onBack }: Props) {
         <p className="text-center text-sm text-gray-500 mt-6">
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
           <button
-            onClick={() => { setIsSignUp(!isSignUp); setError(null); setMessage(null) }}
+            onClick={handleToggleMode}
             className="text-blue-600 hover:underline font-medium"
           >
             {isSignUp ? 'Sign in' : 'Sign up'}
