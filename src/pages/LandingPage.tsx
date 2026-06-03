@@ -2,9 +2,11 @@ import { useAuth } from '../hooks/useAuth'
 
 interface Props {
   onGetStarted: () => void
+  onPrivacy: () => void
+  onTerms: () => void
 }
 
-export default function LandingPage({ onGetStarted }: Props) {
+export default function LandingPage({ onGetStarted, onPrivacy, onTerms }: Props) {
   const { user } = useAuth()
 
   return (
@@ -168,8 +170,8 @@ export default function LandingPage({ onGetStarted }: Props) {
       <div className="border-t border-gray-800/50 px-8 py-6 flex items-center justify-between">
         <span className="text-gray-600 text-sm">© 2026 PointPilot</span>
         <div className="flex items-center gap-6">
-          <a href="/privacy" className="text-gray-600 hover:text-gray-400 text-sm transition-colors">Privacy</a>
-          <a href="/terms" className="text-gray-600 hover:text-gray-400 text-sm transition-colors">Terms</a>
+            <button onClick={onPrivacy} className="text-gray-600 hover:text-gray-400 text-sm transition-colors">Privacy</button>
+            <button onClick={onTerms} className="text-gray-600 hover:text-gray-400 text-sm transition-colors">Terms</button>
         </div>
       </div>
 

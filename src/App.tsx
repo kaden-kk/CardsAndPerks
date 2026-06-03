@@ -9,16 +9,16 @@ import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 
 type Page = 'cards' | 'optimizer' | 'partners'
+type StaticPage = 'privacy' | 'terms' | null
 
 export default function App() {
   const { user, loading, signOut } = useAuth()
   const [page, setPage] = useState<Page>('cards')
   const [showAuth, setShowAuth] = useState(false)
+  const [staticPage, setStaticPage] = useState<StaticPage>(null)
 
-  const path = window.location.pathname
-
-  if (path === '/privacy') return <PrivacyPage />
-  if (path === '/terms') return <TermsPage />
+  if (staticPage === 'privacy') return <PrivacyPage onBack={() => setStaticPage(null)} />
+  if (staticPage === 'terms') return <TermsPage onBack={() => setStaticPage(null)} />
 
   if (loading) {
     return (
@@ -28,7 +28,14 @@ export default function App() {
     )
   }
 
-  if (!user && !showAuth) return <LandingPage onGetStarted={() => setShowAuth(true)} />
+  if (!user && !showAuth) return (
+    <LandingPage
+      onGetStarted={() => setShowAuth(true)}
+      onPrivacy={() => setStaticPage('privacy')}
+      onTerms={() => setStaticPage('terms')}
+    />
+  )
+
   if (!user && showAuth) return <AuthForm onBack={() => setShowAuth(false)} />
 
   return (
@@ -60,7 +67,7 @@ export default function App() {
           ))}
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500">{user.email}</span>
+          <span className="text-sm text-gray-500">{user?.email}</span>
           <button
             onClick={signOut}
             className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
