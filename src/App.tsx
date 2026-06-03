@@ -45,7 +45,7 @@ export default function App() {
           onClick={() => setPage('cards')}
           className="text-xl font-semibold text-blue-600"
         >
-          PointPilot
+          KadoHub
         </button>
         <div className="flex items-center gap-1">
           {([

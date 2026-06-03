@@ -6,7 +6,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-xl font-semibold text-blue-600">PointPilot</span>
+        <span className="text-xl font-semibold text-blue-600">KadoHub</span>
       </div>
       <div className="flex items-center gap-4">
         <span className="text-sm text-gray-500">{user?.email}</span>
