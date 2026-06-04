@@ -1,17 +1,12 @@
-import { Utensils, ShoppingCart, Plane, Hotel, Car, Tv, Pill, Fuel, Home, RefreshCw, CreditCard } from 'lucide-react'
+import {
+  Utensils, ShoppingCart, Plane, Hotel, Car, Tv,
+  Pill, Fuel, Home, RefreshCw, CreditCard
+} from 'lucide-react'
 import type { OptimizedCategory } from '../lib/optimizer'
 
 interface Props {
   result: OptimizedCategory
-}
-
-const issuerColors: Record<string, string> = {
-  'Chase': 'border-blue-200 bg-blue-50',
-  'American Express': 'border-gray-200 bg-gray-50',
-  'Capital One': 'border-red-200 bg-red-50',
-  'Citi': 'border-blue-200 bg-blue-50',
-  'Discover': 'border-orange-200 bg-orange-50',
-  'Wells Fargo': 'border-yellow-200 bg-yellow-50',
+  groupColor?: string
 }
 
 const issuerText: Record<string, string> = {
@@ -24,55 +19,81 @@ const issuerText: Record<string, string> = {
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  'dining': <Utensils size={18} />,
-  'groceries': <ShoppingCart size={18} />,
-  'travel': <Plane size={18} />,
-  'chase travel portal': <Plane size={18} />,
-  'chase travel portal - flights': <Plane size={18} />,
-  'chase travel portal - hotels': <Hotel size={18} />,
-  'capital one travel portal - flights': <Plane size={18} />,
-  'capital one travel portal - hotels': <Hotel size={18} />,
-  'capital one travel portal - car rentals': <Car size={18} />,
-  'citi travel portal': <Plane size={18} />,
-  'amex travel portal - car rentals': <Car size={18} />,
-  'amex travel portal - flights': <Plane size={18} />,
-  'amex travel portal - hotels': <Hotel size={18} />,
-  'flights': <Plane size={18} />,
-  'hotels': <Hotel size={18} />,
-  'car rentals': <Car size={18} />,
-  'streaming': <Tv size={18} />,
-  'drugstores': <Pill size={18} />,
-  'gas': <Fuel size={18} />,
-  'rent': <Home size={18} />,
-  'rotating': <RefreshCw size={18} />,
-  'everything else': <CreditCard size={18} />,
+  'dining': <Utensils size={16} />,
+  'groceries': <ShoppingCart size={16} />,
+  'travel': <Plane size={16} />,
+  'flights': <Plane size={16} />,
+  'hotels': <Hotel size={16} />,
+  'car rentals': <Car size={16} />,
+  'streaming': <Tv size={16} />,
+  'drugstores': <Pill size={16} />,
+  'gas': <Fuel size={16} />,
+  'rent': <Home size={16} />,
+  'rotating': <RefreshCw size={16} />,
+  'everything else': <CreditCard size={16} />,
+  'chase travel portal': <Plane size={16} />,
+  'chase travel portal - flights': <Plane size={16} />,
+  'chase travel portal - hotels': <Hotel size={16} />,
+  'capital one travel portal - flights': <Plane size={16} />,
+  'capital one travel portal - hotels': <Hotel size={16} />,
+  'capital one travel portal - car rentals': <Car size={16} />,
+  'amex travel portal - flights': <Plane size={16} />,
+  'amex travel portal - hotels': <Hotel size={16} />,
+  'amex travel portal - car rentals': <Car size={16} />,
+  'citi travel portal': <Plane size={16} />,
 }
 
-export default function OptimizerCard({ result }: Props) {
-  const colorClass = issuerColors[result.issuer] ?? 'border-gray-200 bg-gray-50'
+const CATEGORY_DISPLAY: Record<string, string> = {
+  'dining': 'Dining',
+  'groceries': 'Groceries',
+  'travel': 'Travel',
+  'flights': 'Flights',
+  'hotels': 'Hotels',
+  'car rentals': 'Car Rentals',
+  'streaming': 'Streaming',
+  'drugstores': 'Drugstores',
+  'gas': 'Gas',
+  'rent': 'Rent',
+  'rotating': 'Rotating',
+  'everything else': 'Everything Else',
+  'chase travel portal': 'Chase Travel',
+  'chase travel portal - flights': 'Chase Flights',
+  'chase travel portal - hotels': 'Chase Hotels',
+  'capital one travel portal - flights': 'Capital One Flights',
+  'capital one travel portal - hotels': 'Capital One Hotels',
+  'capital one travel portal - car rentals': 'Capital One Car Rentals',
+  'amex travel portal - flights': 'Amex Flights',
+  'amex travel portal - hotels': 'Amex Hotels',
+  'amex travel portal - car rentals': 'Amex Car Rentals',
+  'citi travel portal': 'Citi Travel',
+}
+
+export default function OptimizerCard({ result, groupColor = 'bg-gray-50' }: Props) {
   const textClass = issuerText[result.issuer] ?? 'text-gray-700'
-  const icon = CATEGORY_ICONS[result.category] ?? <CreditCard size={18} />
+  const icon = CATEGORY_ICONS[result.category] ?? <CreditCard size={16} />
+  const displayName = CATEGORY_DISPLAY[result.category] ?? result.category
   const returnPct = (result.effectiveReturn * 100).toFixed(2)
 
   return (
-    <div className={`rounded-xl border p-4 ${colorClass}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="text-gray-600">
+    <div className={`rounded-xl border border-gray-100 p-4 ${groupColor}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="text-gray-500 flex-shrink-0">
             {icon}
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-900 capitalize">{result.category}</p>
-            <p className={`text-xs font-medium mt-0.5 ${textClass}`}>{result.bestCard}</p>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
+            <p className={`text-xs font-medium mt-0.5 truncate ${textClass}`}>
+              {result.bestCard}
+            </p>
           </div>
         </div>
         <div className="text-right flex-shrink-0">
           <p className="text-sm font-semibold text-gray-900">{result.earnRate}x</p>
-          <p className="text-xs text-gray-500">{returnPct}% back</p>
         </div>
       </div>
       {result.notes && (
-        <p className="text-xs text-gray-500 mt-2 pl-9">{result.notes}</p>
+        <p className="text-xs text-gray-400 mt-2 leading-tight">{result.notes}</p>
       )}
     </div>
   )
