@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from './hooks/useAuth'
 import AuthForm from './components/AuthForm'
 import CardsPage from './pages/CardsPage'
@@ -11,6 +11,9 @@ import Avatar from './components/Avatar'
 import SettingsPanel from './components/SettingsPanel'
 import { useProfile } from './hooks/useProfile'
 import NavSkeleton from './components/skeletons/NavSkeleton'
+import { supabase } from './lib/supabase'
+import ForgotPasswordForm from './components/ForgotPasswordForm'
+import ResetPasswordForm from './components/ResetPasswordForm'
 
 type Page = 'cards' | 'optimizer' | 'partners'
 type StaticPage = 'privacy' | 'terms' | null
@@ -22,6 +25,32 @@ export default function App() {
   const [staticPage, setStaticPage] = useState<StaticPage>(null)
   const [showSettings, setShowSettings] = useState(false)
   const { profile } = useProfile(user?.id ?? '')
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [showResetPassword, setShowResetPassword] = useState(false)
+  
+  // listen for password recovery event
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setShowResetPassword(true)
+    })
+  }, [])
+
+  // add before the !user checks
+  if (showResetPassword) return (
+    <ResetPasswordForm onDone={() => setShowResetPassword(false)} />
+  )
+
+  if (showForgotPassword) return (
+    <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />
+  )
+
+  // update the AuthForm to pass the forgot password handler
+  if (!user && showAuth) return (
+    <AuthForm
+      onBack={() => setShowAuth(false)}
+      onForgotPassword={() => setShowForgotPassword(true)}
+    />
+  )
 
   if (staticPage === 'privacy') return <PrivacyPage onBack={() => setStaticPage(null)} />
   if (staticPage === 'terms') return <TermsPage onBack={() => setStaticPage(null)} />
@@ -55,9 +84,9 @@ export default function App() {
         </button>
         <div className="flex items-center gap-1">
           {([
-            { key: 'cards', label: 'My cards' },
+            { key: 'cards', label: 'My Cards' },
             { key: 'optimizer', label: 'Optimizer' },
-            { key: 'partners', label: 'Transfer partners' },
+            { key: 'partners', label: 'Transfer Partners' },
           ] as { key: Page; label: string }[]).map(tab => (
             <button
               key={tab.key}

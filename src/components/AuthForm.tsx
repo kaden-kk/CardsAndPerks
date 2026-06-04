@@ -3,9 +3,10 @@ import { useAuth } from '../hooks/useAuth'
 
 interface Props {
   onBack?: () => void
+  onForgotPassword?: () => void
 }
 
-export default function AuthForm({ onBack }: Props) {
+export default function AuthForm({ onBack, onForgotPassword }: Props) {
   const { signIn, signUp } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
@@ -116,6 +117,17 @@ export default function AuthForm({ onBack }: Props) {
               />
             </div>
           )}
+          {!isSignUp && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                className="text-xs text-blue-600 hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
 
           {passwordError && (
             <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{passwordError}</p>
@@ -126,7 +138,10 @@ export default function AuthForm({ onBack }: Props) {
           )}
 
           {message && (
-            <p className="text-sm text-green-600 bg-green-50 px-4 py-2.5 rounded-lg">{message}</p>
+            <div className="text-sm text-green-600 bg-green-50 px-4 py-3 rounded-lg">
+              <p className="font-medium">Check your email</p>
+              <p className="mt-0.5 text-green-500">Click the confirmation link to activate your account. You'll be signed in automatically.</p>
+            </div>
           )}
 
           <button

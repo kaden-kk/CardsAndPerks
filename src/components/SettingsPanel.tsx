@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { X, Check, AlertTriangle } from 'lucide-react'
+import { X, Check, AlertTriangle, MessageSquare } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useProfile, AVATAR_COLORS } from '../hooks/useProfile'
 import DeleteAccountModal from './DeleteAccountModal'
 import SettingsSkeleton from './skeletons/SettingsSkeleton'
+import FeedbackModal from './FeedbackModal'
 
 interface Props {
   onClose: () => void
@@ -16,6 +17,7 @@ export default function SettingsPanel({ onClose }: Props) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
 
   useEffect(() => {
     if (profile?.display_name) setDisplayName(profile.display_name)
@@ -124,6 +126,13 @@ export default function SettingsPanel({ onClose }: Props) {
           {/* Account section */}
           <div className="px-6 py-6">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Account</p>
+            <button
+              onClick={() => setShowFeedback(true)}
+              className="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            >
+              <MessageSquare size={14} />
+              Send feedback
+            </button>
 
             <div className="space-y-2">
               <button
@@ -147,6 +156,9 @@ export default function SettingsPanel({ onClose }: Props) {
 
       {showDeleteModal && (
         <DeleteAccountModal onClose={() => setShowDeleteModal(false)} />
+      )}
+      {showFeedback && (
+        <FeedbackModal onClose={() => setShowFeedback(false)} />
       )}
     </>
   )
