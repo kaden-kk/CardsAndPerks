@@ -126,15 +126,15 @@ export default function SettingsPanel({ onClose }: Props) {
           {/* Account section */}
           <div className="px-6 py-6">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-4">Account</p>
-            <button
-              onClick={() => setShowFeedback(true)}
-              className="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              <MessageSquare size={14} />
-              Send feedback
-            </button>
 
             <div className="space-y-2">
+              <button
+                onClick={() => setShowFeedback(true)}
+                className="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                <MessageSquare size={14} />
+                Send feedback
+              </button>
               <button
                 onClick={signOut}
                 className="w-full text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors"

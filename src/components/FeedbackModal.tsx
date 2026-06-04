@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, MessageSquare } from 'lucide-react'
+import { X, MessageSquare, Bug, Database, Lightbulb, MessageCircle } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
@@ -8,10 +8,10 @@ interface Props {
 }
 
 const FEEDBACK_TYPES = [
-  { value: 'bug', label: '🐛 Bug report' },
-  { value: 'wrong_data', label: '📊 Wrong card data' },
-  { value: 'feature_request', label: '✨ Feature request' },
-  { value: 'general', label: '💬 General feedback' },
+  { value: 'bug', label: 'Bug report', icon: Bug, color: 'text-red-500', bg: 'bg-red-50 border-red-200' },
+  { value: 'wrong_data', label: 'Wrong card data', icon: Database, color: 'text-amber-500', bg: 'bg-amber-50 border-amber-200' },
+  { value: 'feature_request', label: 'Feature request', icon: Lightbulb, color: 'text-blue-500', bg: 'bg-blue-50 border-blue-200' },
+  { value: 'general', label: 'General feedback', icon: MessageCircle, color: 'text-gray-500', bg: 'bg-gray-50 border-gray-200' },
 ]
 
 export default function FeedbackModal({ onClose }: Props) {
@@ -61,14 +61,11 @@ export default function FeedbackModal({ onClose }: Props) {
         {submitted ? (
           <div className="px-6 py-8 text-center">
             <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-xl">✓</span>
+              <MessageCircle size={20} className="text-green-600" />
             </div>
             <p className="text-gray-900 font-medium mb-1">Thanks for the feedback</p>
             <p className="text-gray-500 text-sm mb-6">It helps make the app better for everyone.</p>
-            <button
-              onClick={onClose}
-              className="text-sm text-blue-600 hover:underline"
-            >
+            <button onClick={onClose} className="text-sm text-blue-600 hover:underline">
               Close
             </button>
           </div>
@@ -78,20 +75,30 @@ export default function FeedbackModal({ onClose }: Props) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Type</label>
               <div className="grid grid-cols-2 gap-2">
-                {FEEDBACK_TYPES.map(ft => (
-                  <button
-                    key={ft.value}
-                    type="button"
-                    onClick={() => setType(ft.value)}
-                    className={`px-3 py-2 rounded-lg text-sm text-left transition-colors border ${
-                      type === ft.value
-                        ? 'border-blue-200 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    {ft.label}
-                  </button>
-                ))}
+                {FEEDBACK_TYPES.map(ft => {
+                  const Icon = ft.icon
+                  const isSelected = type === ft.value
+                  return (
+                    <button
+                      key={ft.value}
+                      type="button"
+                      onClick={() => setType(ft.value)}
+                      className={`px-3 py-2.5 rounded-lg text-sm text-left transition-all border flex items-center gap-2 ${
+                        isSelected
+                          ? `${ft.bg} border-opacity-100`
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300 bg-white'
+                      }`}
+                    >
+                      <Icon
+                        size={14}
+                        className={isSelected ? ft.color : 'text-gray-400'}
+                      />
+                      <span className={isSelected ? ft.color.replace('text-', 'text-').replace('-500', '-700') : ''}>
+                        {ft.label}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
