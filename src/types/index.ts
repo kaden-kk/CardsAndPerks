@@ -6,6 +6,7 @@ export interface Card {
   annual_fee: number
   point_currency: string
   point_currency_value: number
+  card_type: 'cashback' | 'points'
   created_at: string
 }
 

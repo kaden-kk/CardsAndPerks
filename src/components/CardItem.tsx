@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   Shield, Wrench, Plane, Smartphone, Car, AlertCircle,
-  DollarSign, Coffee, CreditCard, ChevronDown, ChevronUp,
+  DollarSign, Coffee, CreditCard, ChevronDown,
   Utensils, ShoppingCart, Hotel, Tv, Pill, Fuel, Home, RefreshCw, X, Globe,
 } from 'lucide-react'
 import type { UserCard, Perk } from '../types/index'
@@ -13,11 +13,11 @@ interface Props {
 
 const issuerColors: Record<string, string> = {
   'Chase': 'bg-blue-600',
-  'American Express': 'bg-gray-800',
+  'American Express': 'bg-yellow-600',
   'Capital One': 'bg-red-600',
   'Citi': 'bg-blue-800',
   'Discover': 'bg-orange-500',
-  'Wells Fargo': 'bg-yellow-600',
+  'Bilt': 'bg-gray-950',
 }
 
 const PERK_ICONS: Record<string, React.ReactNode> = {
@@ -46,10 +46,12 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'rent': <Home size={14} />,
   'rotating': <RefreshCw size={14} />,
   'everything else': <CreditCard size={14} />,
+  'entertainment': <Tv size={14} />,
 }
 
 const CATEGORY_DISPLAY: Record<string, string> = {
   'dining': 'Dining',
+  'entertainment': 'Entertainment',
   'groceries': 'Groceries',
   'travel': 'Travel',
   'flights': 'Flights',
@@ -67,6 +69,7 @@ const CATEGORY_DISPLAY: Record<string, string> = {
   'capital one travel portal - flights': 'Capital One Flights',
   'capital one travel portal - hotels': 'Capital One Hotels',
   'capital one travel portal - car rentals': 'Capital One Car Rentals',
+  'capital one entertainment': 'Capital One Entertainment',
   'amex travel portal - flights': 'Amex Flights',
   'amex travel portal - hotels': 'Amex Hotels',
   'amex travel portal - car rentals': 'Amex Car Rentals',
@@ -152,29 +155,37 @@ export default function CardItem({ userCard, onRemove }: Props) {
     <>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
-        {/* Header */}
-        <div className={`${color} px-5 py-4`}>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{card.issuer}</p>
-              <h3 className="text-white font-semibold text-base mt-0.5">{card.name}</h3>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-white/70 text-xs">{card.point_currency}</span>
-                <span className="text-white/30">·</span>
-                <span className="text-white/70 text-xs">
-                  {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
-                </span>
-              </div>
+       {/* Header */}
+      <div className={`${color} px-5 py-4`}>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{card.issuer}</p>
+            <h3 className="text-white font-semibold text-base mt-0.5">{card.name}</h3>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-white/70 text-xs">{card.point_currency}</span>
+              <span className="text-white/30">·</span>
+              <span className="text-white/70 text-xs">
+                {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
+              </span>
+              <span className="text-white/30">·</span>
+              <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                card.card_type === 'cashback'
+                  ? 'bg-green-500/20 text-green-200'
+                  : 'bg-blue-400/20 text-blue-200'
+              }`}>
+                {card.card_type === 'cashback' ? 'Cash back' : 'Points'}
+              </span>
             </div>
-            <button
-              onClick={() => onRemove(userCard.id)}
-              className="text-white/40 hover:text-white/80 transition-colors"
-              title="Remove card"
-            >
-              <X size={16} />
-            </button>
           </div>
+          <button
+            onClick={() => onRemove(userCard.id)}
+            className="text-white/40 hover:text-white/80 transition-colors"
+            title="Remove card"
+          >
+            <X size={16} />
+          </button>
         </div>
+      </div>
 
         {/* Two column body */}
         <div className="grid grid-cols-2 divide-x divide-gray-100">
@@ -195,7 +206,11 @@ export default function CardItem({ userCard, onRemove }: Props) {
                     </span>
                   </div>
                   </div>
-                  <span className="text-xs font-semibold text-gray-900 flex-shrink-0">{benefit.earn_rate}x</span>
+                  <span className="text-xs font-semibold text-gray-900 flex-shrink-0">
+                    {card.card_type === 'cashback'
+                      ? `${benefit.earn_rate}%`
+                      : `${benefit.earn_rate}x`}
+                  </span>
                 </div>
               ))}
             </div>

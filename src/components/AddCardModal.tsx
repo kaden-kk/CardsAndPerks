@@ -12,11 +12,11 @@ interface Props {
 
 const issuerColors: Record<string, string> = {
   'Chase': 'bg-blue-600',
-  'American Express': 'bg-gray-800',
+  'American Express': 'bg-yellow-600',
   'Capital One': 'bg-red-600',
   'Citi': 'bg-blue-800',
   'Discover': 'bg-orange-500',
-  'Wells Fargo': 'bg-yellow-600',
+  'Bilt': 'bg-gray-950',
 }
 
 export default function AddCardModal({ userId, existingCardIds, onClose, onCardAdded }: Props) {

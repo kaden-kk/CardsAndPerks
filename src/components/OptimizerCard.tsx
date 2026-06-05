@@ -1,6 +1,7 @@
 import {
   Utensils, ShoppingCart, Plane, Hotel, Car, Tv,
-  Pill, Fuel, Home, RefreshCw, CreditCard
+  Pill, Fuel, Home, RefreshCw, CreditCard,
+  Ticket
 } from 'lucide-react'
 import type { OptimizedCategory } from '../lib/optimizer'
 
@@ -11,15 +12,16 @@ interface Props {
 
 const issuerText: Record<string, string> = {
   'Chase': 'text-blue-700',
-  'American Express': 'text-gray-700',
+  'American Express': 'text-yellow-700',
   'Capital One': 'text-red-700',
   'Citi': 'text-blue-800',
   'Discover': 'text-orange-700',
-  'Wells Fargo': 'text-yellow-700',
+  'Bilt': 'text-gray-700',
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'dining': <Utensils size={16} />,
+  'entertainment': <Ticket size={16} />,
   'groceries': <ShoppingCart size={16} />,
   'travel': <Plane size={16} />,
   'flights': <Plane size={16} />,
@@ -37,6 +39,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'capital one travel portal - flights': <Plane size={16} />,
   'capital one travel portal - hotels': <Hotel size={16} />,
   'capital one travel portal - car rentals': <Car size={16} />,
+  'capital one entertainment': <Ticket size={16} />,
   'amex travel portal - flights': <Plane size={16} />,
   'amex travel portal - hotels': <Hotel size={16} />,
   'amex travel portal - car rentals': <Car size={16} />,
@@ -45,6 +48,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 const CATEGORY_DISPLAY: Record<string, string> = {
   'dining': 'Dining',
+  'entertainment': 'Entertainment',
   'groceries': 'Groceries',
   'travel': 'Travel',
   'flights': 'Flights',
@@ -62,6 +66,7 @@ const CATEGORY_DISPLAY: Record<string, string> = {
   'capital one travel portal - flights': 'Capital One Flights',
   'capital one travel portal - hotels': 'Capital One Hotels',
   'capital one travel portal - car rentals': 'Capital One Car Rentals',
+  'capital one entertainment': 'Capital One Entertainment',
   'amex travel portal - flights': 'Amex Flights',
   'amex travel portal - hotels': 'Amex Hotels',
   'amex travel portal - car rentals': 'Amex Car Rentals',
@@ -89,7 +94,11 @@ export default function OptimizerCard({ result, groupColor = 'bg-gray-50' }: Pro
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-sm font-semibold text-gray-900">{result.earnRate}x</p>
+          <p className="text-sm font-semibold text-gray-900">
+            {result.cardType === 'cashback'
+              ? `${result.earnRate}%`
+              : `${result.earnRate}x`}
+          </p>
         </div>
       </div>
       {result.notes && (

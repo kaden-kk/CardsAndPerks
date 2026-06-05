@@ -33,6 +33,8 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
     'drugstores',
     'rent',
     'rotating',
+    'entertainment',
+    'capital one entertainment',
   ],
 }
 

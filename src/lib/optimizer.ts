@@ -8,6 +8,7 @@ export interface OptimizedCategory {
   pointCurrency: string
   effectiveReturn: number
   notes: string | null
+  cardType: 'cashback' | 'points'
 }
 
 export interface PartnerRecommendation {
@@ -75,6 +76,7 @@ export function optimizeCards(userCards: UserCard[]): OptimizedCategory[] {
           pointCurrency: card.point_currency,
           effectiveReturn,
           notes: benefit.notes,
+          cardType: card.card_type ?? 'points',
         }
       }
     }
