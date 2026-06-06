@@ -3,6 +3,7 @@ import {
   Shield, Wrench, Plane, Smartphone, Car, AlertCircle,
   DollarSign, Coffee, CreditCard, ChevronDown,
   Utensils, ShoppingCart, Hotel, Tv, Pill, Fuel, Home, RefreshCw, X, Globe,
+  Moon, Sparkles, Train
 } from 'lucide-react'
 import type { UserCard, Perk } from '../types/index'
 
@@ -47,6 +48,10 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'rotating': <RefreshCw size={14} />,
   'everything else': <CreditCard size={14} />,
   'entertainment': <Tv size={14} />,
+  'transit': <Train size={14} />,
+  'self-select': <Sparkles size={14} />,
+  'dining (citi nights)': <Moon size={14} />,
+  'citi travel portal - flights': <Plane size={14} />,
 }
 
 const CATEGORY_DISPLAY: Record<string, string> = {
@@ -74,6 +79,10 @@ const CATEGORY_DISPLAY: Record<string, string> = {
   'amex travel portal - hotels': 'Amex Hotels',
   'amex travel portal - car rentals': 'Amex Car Rentals',
   'citi travel portal': 'Citi Travel',
+  'transit': 'Transit',
+  'self-select': 'Self-Select',
+  'dining (citi nights)': 'Dining (Nights)',
+  'citi travel portal - flights': 'Citi Flights',
 }
 
 interface PerkModalProps {

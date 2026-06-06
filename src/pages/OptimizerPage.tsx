@@ -8,8 +8,11 @@ import type { OptimizedCategory } from '../lib/optimizer'
 const CATEGORY_GROUPS: Record<string, string[]> = {
   'Everyday': [
     'dining',
+    'dining (citi nights)',
     'groceries',
     'gas',
+    'transit',
+    'self-select',
     'everything else',
   ],
   'Travel': [
@@ -27,6 +30,7 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
     'amex travel portal - hotels',
     'amex travel portal - car rentals',
     'citi travel portal',
+    'citi travel portal - flights',
   ],
   'Lifestyle': [
     'streaming',

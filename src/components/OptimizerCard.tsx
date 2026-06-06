@@ -1,7 +1,6 @@
 import {
   Utensils, ShoppingCart, Plane, Hotel, Car, Tv,
-  Pill, Fuel, Home, RefreshCw, CreditCard,
-  Ticket
+  Pill, Fuel, Home, RefreshCw, CreditCard, Ticket, Train, Sparkles, Moon
 } from 'lucide-react'
 import type { OptimizedCategory } from '../lib/optimizer'
 
@@ -21,7 +20,6 @@ const issuerText: Record<string, string> = {
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'dining': <Utensils size={16} />,
-  'entertainment': <Ticket size={16} />,
   'groceries': <ShoppingCart size={16} />,
   'travel': <Plane size={16} />,
   'flights': <Plane size={16} />,
@@ -33,6 +31,11 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'rent': <Home size={16} />,
   'rotating': <RefreshCw size={16} />,
   'everything else': <CreditCard size={16} />,
+  'transit': <Train size={14} />,
+  'self-select': <Sparkles size={14} />,
+  'dining (citi nights)': <Moon size={14} />,
+  'citi travel portal - flights': <Plane size={14} />,
+  'entertainment': <Ticket size={16} />,
   'chase travel portal': <Plane size={16} />,
   'chase travel portal - flights': <Plane size={16} />,
   'chase travel portal - hotels': <Hotel size={16} />,
@@ -48,7 +51,6 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 const CATEGORY_DISPLAY: Record<string, string> = {
   'dining': 'Dining',
-  'entertainment': 'Entertainment',
   'groceries': 'Groceries',
   'travel': 'Travel',
   'flights': 'Flights',
@@ -60,6 +62,7 @@ const CATEGORY_DISPLAY: Record<string, string> = {
   'rent': 'Rent',
   'rotating': 'Rotating',
   'everything else': 'Everything Else',
+  'entertainment': 'Entertainment',
   'chase travel portal': 'Chase Travel',
   'chase travel portal - flights': 'Chase Flights',
   'chase travel portal - hotels': 'Chase Hotels',
@@ -71,13 +74,19 @@ const CATEGORY_DISPLAY: Record<string, string> = {
   'amex travel portal - hotels': 'Amex Hotels',
   'amex travel portal - car rentals': 'Amex Car Rentals',
   'citi travel portal': 'Citi Travel',
+  'citi travel portal - flights': 'Citi Flights',
+  'transit': 'Transit',
+  'self-select': 'Self-Select',
+  'dining (citi nights)': 'Dining (Nights)',
 }
 
 export default function OptimizerCard({ result, groupColor = 'bg-gray-50' }: Props) {
   const textClass = issuerText[result.issuer] ?? 'text-gray-700'
   const icon = CATEGORY_ICONS[result.category] ?? <CreditCard size={16} />
   const displayName = CATEGORY_DISPLAY[result.category] ?? result.category
-  const returnPct = (result.effectiveReturn * 100).toFixed(2)
+  const rateDisplay = result.cardType === 'cashback'
+    ? `${result.earnRate}%`
+    : `${result.earnRate}x`
 
   return (
     <div className={`rounded-xl border border-gray-100 p-4 ${groupColor}`}>
@@ -94,15 +103,20 @@ export default function OptimizerCard({ result, groupColor = 'bg-gray-50' }: Pro
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-sm font-semibold text-gray-900">
-            {result.cardType === 'cashback'
-              ? `${result.earnRate}%`
-              : `${result.earnRate}x`}
-          </p>
+          <p className="text-sm font-semibold text-gray-900">{rateDisplay}</p>
         </div>
       </div>
+
       {result.notes && (
         <p className="text-xs text-gray-400 mt-2 leading-tight">{result.notes}</p>
+      )}
+
+      {result.tiedCards.length > 0 && (
+        <div className="mt-2 pt-2 border-t border-black/5">
+          <p className="text-xs text-gray-400 leading-relaxed">
+            Also: {result.tiedCards.map(c => c.name).join(', ')}
+          </p>
+        </div>
       )}
     </div>
   )
