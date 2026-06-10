@@ -1,3 +1,63 @@
+export interface ProtectionDefinition {
+  id: string
+  name: string
+  category: string
+  description: string
+}
+
+export interface CardProtection {
+  id: string
+  protection: ProtectionDefinition
+  coverage_amount: string | null
+  notes: string | null
+  source: string | null
+  verified_at: string | null
+}
+
+export interface PerkDefinition {
+  id: string
+  name: string
+  category: string
+  description: string
+}
+
+export interface CardPerk {
+  id: string
+  perk: PerkDefinition
+  value: string | null
+  notes: string | null
+}
+
+export interface TransferPartner {
+  id: string
+  name: string
+  type: 'airline' | 'hotel'
+  alliance: string | null
+}
+
+export interface CardTransferPartner {
+  id: string
+  partner: TransferPartner
+  ratio: number
+  notes: string | null
+}
+
+export interface EarnRate {
+  id: string
+  category: string
+  earn_rate: number
+  cap: number | null
+  cap_period: string | null
+  notes: string | null
+}
+
+export interface RedemptionValue {
+  id: string
+  redemption_type: string
+  cpp: number
+  notes: string | null
+}
+
 export interface Card {
   id: string
   name: string
@@ -7,46 +67,16 @@ export interface Card {
   point_currency: string
   point_currency_value: number
   card_type: 'cashback' | 'points'
-  created_at: string
-}
-
-export interface Benefit {
-  id: string
-  card_id: string
-  category: string
-  earn_rate: number
-  cap: number | null
-  cap_period: string | null
-  notes: string | null
-}
-
-export interface Redemption {
-  id: string
-  card_id: string
-  redemption_type: 'transfer' | 'cash' | 'travel_portal'
-  partner_name: string | null
-  partner_type: 'airline' | 'hotel' | 'cash' | 'travel_portal' | null
-  value: number
-  notes: string | null
-}
-
-export interface Perk {
-  id: string
-  card_id: string
-  category: string
-  title: string
-  description: string
-  value: string | null
+  earn_rates: EarnRate[]
+  card_perks: CardPerk[]
+  card_protections: CardProtection[]
+  card_transfer_partners: CardTransferPartner[]
+  redemption_values: RedemptionValue[]
 }
 
 export interface UserCard {
   id: string
-  user_id: string
   card_id: string
   added_at: string
-  card: Card & {
-    benefits: Benefit[]
-    redemptions: Redemption[]
-    perks: Perk[]
-  }
+  card: Card
 }

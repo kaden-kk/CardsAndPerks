@@ -5,7 +5,7 @@ import {
   Utensils, ShoppingCart, Hotel, Tv, Pill, Fuel, Home, RefreshCw, X, Globe,
   Moon, Sparkles, Train
 } from 'lucide-react'
-import type { UserCard, Perk } from '../types/index'
+import type { UserCard, Card, CardPerk, CardProtection } from '../types/index'
 
 interface Props {
   userCard: UserCard
@@ -22,16 +22,19 @@ const issuerColors: Record<string, string> = {
 }
 
 const PERK_ICONS: Record<string, React.ReactNode> = {
+  'credits': <DollarSign size={14} />,
+  'lounge_access': <Coffee size={14} />,
+  'cashback_match': <CreditCard size={14} />,
+  'foreign_transaction': <Globe size={14} />,
+}
+
+const PROTECTION_ICONS: Record<string, React.ReactNode> = {
   'purchase_protection': <Shield size={14} />,
   'extended_warranty': <Wrench size={14} />,
   'travel_protection': <Plane size={14} />,
   'cell_phone': <Smartphone size={14} />,
   'rental_car': <Car size={14} />,
   'travel_assistance': <AlertCircle size={14} />,
-  'credits': <DollarSign size={14} />,
-  'lounge_access': <Coffee size={14} />,
-  'cashback_match': <CreditCard size={14} />,
-  'foreign_transaction': <Globe size={14} />,
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -85,18 +88,22 @@ const CATEGORY_DISPLAY: Record<string, string> = {
   'citi travel portal - flights': 'Citi Flights',
 }
 
-interface PerkModalProps {
-  perks: Perk[]
-  cardName: string
-  onClose: () => void
-}
-
-function PerkModal({ perks, cardName, onClose }: PerkModalProps) {
-  const grouped = perks.reduce<Record<string, Perk[]>>((acc, perk) => {
-    if (!acc[perk.category]) acc[perk.category] = []
-    acc[perk.category]!.push(perk)
+function groupByCategory<T>(
+  items: T[],
+  getCategory: (item: T) => string
+): Record<string, T[]> {
+  return items.reduce<Record<string, T[]>>((acc, item) => {
+    const cat = getCategory(item)
+    if (!acc[cat]) acc[cat] = []
+    acc[cat]!.push(item)
     return acc
   }, {})
+}
+
+function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }) {
+  const perkGroups = groupByCategory(card.card_perks, cp => cp.perk.category)
+  const protectionGroups = groupByCategory(card.card_protections, cp => cp.protection.category)
+  const totalCount = card.card_perks.length + card.card_protections.length
 
   return (
     <div
@@ -109,8 +116,8 @@ function PerkModal({ perks, cardName, onClose }: PerkModalProps) {
       >
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">{cardName}</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{perks.length} hidden perks</p>
+            <h2 className="text-base font-semibold text-gray-900">{card.name}</h2>
+            <p className="text-xs text-gray-500 mt-0.5">{totalCount} perks & protections</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X size={18} />
@@ -118,8 +125,8 @@ function PerkModal({ perks, cardName, onClose }: PerkModalProps) {
         </div>
 
         <div className="overflow-y-auto flex-1 px-6 py-4 space-y-5">
-          {Object.entries(grouped).map(([category, categoryPerks]) => (
-            <div key={category}>
+          {Object.entries(perkGroups).map(([category, perks]) => (
+            <div key={`perk-${category}`}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-gray-400">
                   {PERK_ICONS[category] ?? <CreditCard size={14} />}
@@ -129,17 +136,53 @@ function PerkModal({ perks, cardName, onClose }: PerkModalProps) {
                 </p>
               </div>
               <div className="space-y-2">
-                {categoryPerks.map(perk => (
-                  <div key={perk.id} className="bg-gray-50 rounded-lg px-3 py-2.5">
+                {perks.map(cp => (
+                  <div key={cp.id} className="bg-gray-50 rounded-lg px-3 py-2.5">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium text-gray-800">{perk.title}</p>
-                      {perk.value && (
+                      <p className="text-sm font-medium text-gray-800">{cp.perk.name}</p>
+                      {cp.value && (
                         <span className="text-xs font-medium text-green-700 bg-green-50 border border-green-100 px-2 py-0.5 rounded-full flex-shrink-0">
-                          {perk.value}
+                          {cp.value}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{perk.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">{cp.perk.description}</p>
+                    {cp.notes && (
+                      <p className="text-xs text-gray-400 mt-1 italic">{cp.notes}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {Object.entries(protectionGroups).map(([category, protections]) => (
+            <div key={`protection-${category}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-gray-400">
+                  {PROTECTION_ICONS[category] ?? <Shield size={14} />}
+                </span>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  {category.replace(/_/g, ' ')}
+                </p>
+              </div>
+              <div className="space-y-2">
+                {protections.map((cp: CardProtection) => (
+                  <div key={cp.id} className="bg-gray-50 rounded-lg px-3 py-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-gray-800">{cp.protection.name}</p>
+                      {cp.coverage_amount && (
+                        <span className="text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full flex-shrink-0">
+                          {cp.coverage_amount}
+                        </span>
+                      )}
+                    </div>
+                    {cp.protection.description && (
+                      <p className="text-xs text-gray-500 mt-1">{cp.protection.description}</p>
+                    )}
+                    {cp.notes && (
+                      <p className="text-xs text-gray-400 mt-1 italic">{cp.notes}</p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -154,120 +197,109 @@ function PerkModal({ perks, cardName, onClose }: PerkModalProps) {
 export default function CardItem({ userCard, onRemove }: Props) {
   const { card } = userCard
   const color = issuerColors[card.issuer] ?? 'bg-gray-600'
-  const [showPerks, setShowPerks] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
 
-  const topPerks = card.perks
+  const topPerks = card.card_perks
     .filter(p => p.value)
     .slice(0, 4)
+
+  const totalBenefits = card.card_perks.length + card.card_protections.length
 
   return (
     <>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
-       {/* Header */}
-      <div className={`${color} px-5 py-4`}>
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{card.issuer}</p>
-            <h3 className="text-white font-semibold text-base mt-0.5">{card.name}</h3>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-white/70 text-xs">{card.point_currency}</span>
-              <span className="text-white/30">·</span>
-              <span className="text-white/70 text-xs">
-                {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
-              </span>
-              <span className="text-white/30">·</span>
-              <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
-                card.card_type === 'cashback'
-                  ? 'bg-green-500/20 text-green-200'
-                  : 'bg-blue-400/20 text-blue-200'
-              }`}>
-                {card.card_type === 'cashback' ? 'Cash back' : 'Points'}
-              </span>
+        <div className={`${color} px-5 py-4`}>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{card.issuer}</p>
+              <h3 className="text-white font-semibold text-base mt-0.5">{card.name}</h3>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-white/70 text-xs">{card.point_currency}</span>
+                <span className="text-white/30">·</span>
+                <span className="text-white/70 text-xs">
+                  {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
+                </span>
+                <span className="text-white/30">·</span>
+                <span className={`text-xs text-white/70 font-medium`}>
+                  {card.card_type === 'cashback' ? 'Cash back' : 'Points'}
+                </span>
+              </div>
             </div>
+            <button
+              onClick={() => onRemove(userCard.id)}
+              className="text-white/40 hover:text-white/80 transition-colors"
+              title="Remove card"
+            >
+              <X size={16} />
+            </button>
           </div>
-          <button
-            onClick={() => onRemove(userCard.id)}
-            className="text-white/40 hover:text-white/80 transition-colors"
-            title="Remove card"
-          >
-            <X size={16} />
-          </button>
         </div>
-      </div>
 
-        {/* Two column body */}
         <div className="grid grid-cols-2 divide-x divide-gray-100">
-
-          {/* Earn rates */}
           <div className="px-4 py-3">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Earn rates</p>
             <div className="space-y-1.5">
-              {card.benefits.map(benefit => (
-                <div key={benefit.id} className="flex items-center justify-between gap-2">
+              {card.earn_rates.map(earnRate => (
+                <div key={earnRate.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 text-gray-500 min-w-0">
-                    <div className="flex items-center gap-1.5 text-gray-500 min-w-0">
                     <span className="flex-shrink-0">
-                      {CATEGORY_ICONS[benefit.category] ?? <CreditCard size={14} />}
+                      {CATEGORY_ICONS[earnRate.category] ?? <CreditCard size={14} />}
                     </span>
                     <span className="text-xs text-gray-600 truncate capitalize">
-                      {CATEGORY_DISPLAY[benefit.category] ?? benefit.category}
+                      {CATEGORY_DISPLAY[earnRate.category] ?? earnRate.category}
                     </span>
-                  </div>
                   </div>
                   <span className="text-xs font-semibold text-gray-900 flex-shrink-0">
                     {card.card_type === 'cashback'
-                      ? `${benefit.earn_rate}%`
-                      : `${benefit.earn_rate}x`}
+                      ? `${earnRate.earn_rate}%`
+                      : `${earnRate.earn_rate}x`}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Perks */}
           <div className="px-4 py-3">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Perks</p>
-            {card.perks.length === 0 ? (
+            {totalBenefits === 0 ? (
               <p className="text-xs text-gray-400">No perks data</p>
             ) : (
               <>
                 <div className="space-y-1.5">
-                  {topPerks.map(perk => (
-                    <div key={perk.id} className="flex items-start gap-1.5">
+                  {topPerks.map(cp => (
+                    <div key={cp.id} className="flex items-start gap-1.5">
                       <span className="text-gray-400 flex-shrink-0 mt-0.5">
-                        {PERK_ICONS[perk.category] ?? <CreditCard size={14} />}
+                        {PERK_ICONS[cp.perk.category] ?? <CreditCard size={14} />}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-xs text-gray-700 leading-tight">{perk.title}</p>
-                        {perk.value && (
-                          <p className="text-xs font-medium text-green-700 mt-0.5">{perk.value}</p>
+                        <p className="text-xs text-gray-700 leading-tight">{cp.perk.name}</p>
+                        {cp.value && (
+                          <p className="text-xs font-medium text-green-700 mt-0.5">{cp.value}</p>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
-                {card.perks.length > 0 && (
+                {totalBenefits > 0 && (
                   <button
-                    onClick={() => setShowPerks(true)}
+                    onClick={() => setShowDetails(true)}
                     className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
                   >
-                    <span>All {card.perks.length} perks</span>
+                    <span>All {totalBenefits} perks & protections</span>
                     <ChevronDown size={12} />
                   </button>
                 )}
               </>
             )}
           </div>
-
         </div>
       </div>
 
-      {showPerks && (
-        <PerkModal
-          perks={card.perks}
-          cardName={card.name}
-          onClose={() => setShowPerks(false)}
+      {showDetails && (
+        <CardDetailsModal
+          card={card}
+          onClose={() => setShowDetails(false)}
         />
       )}
     </>

@@ -25,7 +25,7 @@ export default function CardsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
 
         <div className="flex items-center justify-between mb-8">
           <div>

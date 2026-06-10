@@ -1,14 +1,14 @@
 import PartnersSkeleton from '../components/skeletons/PartnerSkeleton'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
-import type { Redemption } from '../types/index'
+import type { CardTransferPartner } from '../types/index'
 import { Plane, Hotel } from 'lucide-react'
 
 interface EcosystemGroup {
   issuer: string
   pointCurrency: string
-  airlines: Redemption[]
-  hotels: Redemption[]
+  airlines: CardTransferPartner[]
+  hotels: CardTransferPartner[]
 }
 
 const issuerColors: Record<string, string> = {
@@ -31,7 +31,7 @@ function getRatioColor(value: number): string {
   return 'text-gray-400'
 }
 
-function PartnerList({ partners, type }: { partners: Redemption[], type: 'airline' | 'hotel' }) {
+function PartnerList({ partners, type }: { partners: CardTransferPartner[], type: 'airline' | 'hotel' }) {
   if (partners.length === 0) return null
 
   return (
@@ -47,13 +47,13 @@ function PartnerList({ partners, type }: { partners: Redemption[], type: 'airlin
       </div>
       <div className="space-y-1">
         {partners
-          .sort((a, b) => (a.partner_name ?? '').localeCompare(b.partner_name ?? ''))
+          .sort((a, b) => (a.partner.name ?? '').localeCompare(b.partner.name ?? ''))
           .map(partner => (
             <div key={partner.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
               <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${type === 'airline' ? 'bg-blue-400' : 'bg-amber-400'}`} />
-              <span className="text-sm text-gray-700 flex-1">{partner.partner_name}</span>
-              <span className={`text-xs font-medium ${getRatioColor(partner.value)}`}>
-                {formatRatio(partner.value)}
+              <span className="text-sm text-gray-700 flex-1">{partner.partner.name}</span>
+              <span className={`text-xs font-medium ${getRatioColor(partner.ratio)}`}>
+                {formatRatio(partner.ratio)}
               </span>
             </div>
           ))}
@@ -68,7 +68,7 @@ export default function PartnersPage() {
 
   const ecosystems = userCards.reduce<Record<string, EcosystemGroup>>((acc, userCard) => {
     const { card } = userCard
-    const transfers = card.redemptions.filter(r => r.redemption_type === 'transfer')
+    const transfers = card.card_transfer_partners
     if (transfers.length === 0) return acc
 
     if (!acc[card.point_currency]) {
@@ -81,14 +81,15 @@ export default function PartnersPage() {
     }
 
     for (const t of transfers) {
-      if (!t.partner_name || !t.partner_type) continue
+      if (!t.partner.name || !t.partner.type) continue
       const ecosystem = acc[card.point_currency]
       if (!ecosystem) continue
 
-      if (t.partner_type === 'airline' && !ecosystem.airlines.find(a => a.partner_name === t.partner_name)) {
+      if (t.partner.type === 'airline' && !ecosystem.airlines.find(a => a.partner.name === t.partner.name)) {
         ecosystem.airlines.push(t)
       }
-      if (t.partner_type === 'hotel' && !ecosystem.hotels.find(h => h.partner_name === t.partner_name)) {
+
+      if ( t.partner.type === 'hotel' && !ecosystem.hotels.find(h => h.partner.name === t.partner.name)) {
         ecosystem.hotels.push(t)
       }
     }
@@ -98,7 +99,7 @@ export default function PartnersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
 
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">Transfer Partners</h1>

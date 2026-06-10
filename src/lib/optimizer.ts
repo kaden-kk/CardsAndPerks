@@ -50,11 +50,9 @@ export function optimizeCards(userCards: UserCard[]): OptimizedCategory[] {
     const { card } = userCard
     const pointValue = card.point_currency_value ?? 0.01
 
-    for (const benefit of card.benefits) {
-      const category = benefit.category
-      if (category === 'cash back') continue
-
-      const effectiveReturn = benefit.earn_rate * pointValue
+    for (const earnRate of card.earn_rates) {
+      const category = earnRate.category
+      const effectiveReturn = earnRate.earn_rate * pointValue
       const existing = categoryMap[category]
 
       if (!existing) {
@@ -62,10 +60,10 @@ export function optimizeCards(userCards: UserCard[]): OptimizedCategory[] {
           category,
           bestCard: card.name,
           issuer: card.issuer,
-          earnRate: benefit.earn_rate,
+          earnRate: earnRate.earn_rate,
           pointCurrency: card.point_currency,
           effectiveReturn,
-          notes: benefit.notes,
+          notes: earnRate.notes,
           cardType: card.card_type ?? 'points',
           tiedCards: [],
         }
@@ -79,10 +77,10 @@ export function optimizeCards(userCards: UserCard[]): OptimizedCategory[] {
           category,
           bestCard: card.name,
           issuer: card.issuer,
-          earnRate: benefit.earn_rate,
+          earnRate: earnRate.earn_rate,
           pointCurrency: card.point_currency,
           effectiveReturn,
-          notes: benefit.notes,
+          notes: earnRate.notes,
           cardType: card.card_type ?? 'points',
           tiedCards: [],
         }

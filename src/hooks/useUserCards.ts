@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
-import type { UserCard } from '../types/index'
-import type { Benefit } from '../types/index'
+import type { UserCard, EarnRate } from '../types/index'
 
 export function useUserCards(userId: string) {
   const [userCards, setUserCards] = useState<UserCard[]>([])
@@ -15,28 +14,43 @@ export function useUserCards(userId: string) {
     const { data, error } = await supabase
       .from('user_cards')
       .select(`
-        *,
+        id,
+        card_id,
+        added_at,
         card:cards (
           *,
-          benefits (*),
-          redemptions (*),
-          perks (*)
+          earn_rates (*),
+          card_perks (
+            id, value, notes,
+            perk:perk_definitions (*)
+          ),
+          card_protections (
+            id, coverage_amount, notes, source, verified_at,
+            protection:protection_definitions (*)
+          ),
+          card_transfer_partners (
+            id, ratio, notes,
+            partner:transfer_partners (*)
+          ),
+          redemption_values (*)
         )
       `)
       .eq('user_id', userId)
-      .order('added_at', { ascending: false })
 
-    if (error) setError(error.message)
-    else {
+    if (error) {
+      setError(error.message)
+    } else {
       const sorted = (data ?? []).sort((a, b) =>
         a.card.name.localeCompare(b.card.name)
       )
 
       sorted.forEach(userCard => {
-        userCard.card.benefits.sort((a : Benefit, b : Benefit) => b.earn_rate - a.earn_rate)
+        userCard.card.earn_rates.sort((a: EarnRate, b: EarnRate) =>
+          b.earn_rate - a.earn_rate
+        )
       })
 
-      setUserCards(sorted)
+      setUserCards(sorted as UserCard[])
     }
     setLoading(false)
   }, [userId])
