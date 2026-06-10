@@ -117,7 +117,7 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-gray-900">{card.name}</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{totalCount} perks & protections</p>
+            <p className="text-xs text-gray-500 mt-0.5">{totalCount} perks</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X size={18} />
@@ -286,7 +286,7 @@ export default function CardItem({ userCard, onRemove }: Props) {
                     onClick={() => setShowDetails(true)}
                     className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
                   >
-                    <span>All {totalBenefits} perks & protections</span>
+                    <span>All {totalBenefits} perks</span>
                     <ChevronDown size={12} />
                   </button>
                 )}
