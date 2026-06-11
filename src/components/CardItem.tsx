@@ -1,91 +1,19 @@
 import { useState } from 'react'
-import {
-  Shield, Wrench, Plane, Smartphone, Car, AlertCircle,
-  DollarSign, Coffee, CreditCard, ChevronDown,
-  Utensils, ShoppingCart, Hotel, Tv, Pill, Fuel, Home, RefreshCw, X, Globe,
-  Moon, Sparkles, Train
-} from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import type { UserCard, Card, CardPerk, CardProtection } from '../types/index'
+import {
+  getEarnRateIcon,
+  getEarnRateLabel,
+  getPerkIcon,
+  getPerkLabel,
+  getProtectionIcon,
+  getProtectionLabel,
+} from '../constants/categories'
+import { ISSUER_COLORS } from '../constants/issuers'
 
 interface Props {
   userCard: UserCard
   onRemove: (userCardId: string) => void
-}
-
-const issuerColors: Record<string, string> = {
-  'Chase': 'bg-blue-600',
-  'American Express': 'bg-yellow-600',
-  'Capital One': 'bg-red-600',
-  'Citi': 'bg-blue-800',
-  'Discover': 'bg-orange-500',
-  'Bilt': 'bg-gray-950',
-}
-
-const PERK_ICONS: Record<string, React.ReactNode> = {
-  'credits': <DollarSign size={14} />,
-  'lounge_access': <Coffee size={14} />,
-  'cashback_match': <CreditCard size={14} />,
-  'foreign_transaction': <Globe size={14} />,
-}
-
-const PROTECTION_ICONS: Record<string, React.ReactNode> = {
-  'purchase_protection': <Shield size={14} />,
-  'extended_warranty': <Wrench size={14} />,
-  'travel_protection': <Plane size={14} />,
-  'cell_phone': <Smartphone size={14} />,
-  'rental_car': <Car size={14} />,
-  'travel_assistance': <AlertCircle size={14} />,
-}
-
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  'dining': <Utensils size={14} />,
-  'groceries': <ShoppingCart size={14} />,
-  'travel': <Plane size={14} />,
-  'flights': <Plane size={14} />,
-  'hotels': <Hotel size={14} />,
-  'car rentals': <Car size={14} />,
-  'streaming': <Tv size={14} />,
-  'drugstores': <Pill size={14} />,
-  'gas': <Fuel size={14} />,
-  'rent': <Home size={14} />,
-  'rotating': <RefreshCw size={14} />,
-  'everything else': <CreditCard size={14} />,
-  'entertainment': <Tv size={14} />,
-  'transit': <Train size={14} />,
-  'self-select': <Sparkles size={14} />,
-  'dining (citi nights)': <Moon size={14} />,
-  'citi travel portal - flights': <Plane size={14} />,
-}
-
-const CATEGORY_DISPLAY: Record<string, string> = {
-  'dining': 'Dining',
-  'entertainment': 'Entertainment',
-  'groceries': 'Groceries',
-  'travel': 'Travel',
-  'flights': 'Flights',
-  'hotels': 'Hotels',
-  'car rentals': 'Car Rentals',
-  'streaming': 'Streaming',
-  'drugstores': 'Drugstores',
-  'gas': 'Gas',
-  'rent': 'Rent',
-  'rotating': 'Rotating',
-  'everything else': 'Everything Else',
-  'chase travel portal': 'Chase Travel',
-  'chase travel portal - flights': 'Chase Flights',
-  'chase travel portal - hotels': 'Chase Hotels',
-  'capital one travel portal - flights': 'Capital One Flights',
-  'capital one travel portal - hotels': 'Capital One Hotels',
-  'capital one travel portal - car rentals': 'Capital One Car Rentals',
-  'capital one entertainment': 'Capital One Entertainment',
-  'amex travel portal - flights': 'Amex Flights',
-  'amex travel portal - hotels': 'Amex Hotels',
-  'amex travel portal - car rentals': 'Amex Car Rentals',
-  'citi travel portal': 'Citi Travel',
-  'transit': 'Transit',
-  'self-select': 'Self-Select',
-  'dining (citi nights)': 'Dining (Nights)',
-  'citi travel portal - flights': 'Citi Flights',
 }
 
 function groupByCategory<T>(
@@ -129,10 +57,10 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
             <div key={`perk-${category}`}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-gray-400">
-                  {PERK_ICONS[category] ?? <CreditCard size={14} />}
+                  {getPerkIcon(category)}
                 </span>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                  {category.replace(/_/g, ' ')}
+                  {getPerkLabel(category)}
                 </p>
               </div>
               <div className="space-y-2">
@@ -160,10 +88,10 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
             <div key={`protection-${category}`}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-gray-400">
-                  {PROTECTION_ICONS[category] ?? <Shield size={14} />}
+                  {getProtectionIcon(category)}
                 </span>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                  {category.replace(/_/g, ' ')}
+                  {getProtectionLabel(category)}
                 </p>
               </div>
               <div className="space-y-2">
@@ -196,7 +124,7 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
 
 export default function CardItem({ userCard, onRemove }: Props) {
   const { card } = userCard
-  const color = issuerColors[card.issuer] ?? 'bg-gray-600'
+  const color = ISSUER_COLORS[card.issuer] ?? 'bg-gray-600'
   const [showDetails, setShowDetails] = useState(false)
 
   const topPerks = card.card_perks
@@ -244,10 +172,10 @@ export default function CardItem({ userCard, onRemove }: Props) {
                 <div key={earnRate.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 text-gray-500 min-w-0">
                     <span className="flex-shrink-0">
-                      {CATEGORY_ICONS[earnRate.category] ?? <CreditCard size={14} />}
+                      {getEarnRateIcon(earnRate.category)}
                     </span>
                     <span className="text-xs text-gray-600 truncate capitalize">
-                      {CATEGORY_DISPLAY[earnRate.category] ?? earnRate.category}
+                      {getEarnRateLabel(earnRate.category)}
                     </span>
                   </div>
                   <span className="text-xs font-semibold text-gray-900 flex-shrink-0">
@@ -270,7 +198,7 @@ export default function CardItem({ userCard, onRemove }: Props) {
                   {topPerks.map(cp => (
                     <div key={cp.id} className="flex items-start gap-1.5">
                       <span className="text-gray-400 flex-shrink-0 mt-0.5">
-                        {PERK_ICONS[cp.perk.category] ?? <CreditCard size={14} />}
+                        {getPerkIcon(cp.perk.category)}
                       </span>
                       <div className="min-w-0">
                         <p className="text-xs text-gray-700 leading-tight">{cp.perk.name}</p>

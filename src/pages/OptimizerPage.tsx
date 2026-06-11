@@ -8,7 +8,6 @@ import type { OptimizedCategory } from '../lib/optimizer'
 const CATEGORY_GROUPS: Record<string, string[]> = {
   'Everyday': [
     'dining',
-    'dining (citi nights)',
     'groceries',
     'gas',
     'transit',
@@ -39,6 +38,7 @@ const CATEGORY_GROUPS: Record<string, string[]> = {
     'rotating',
     'entertainment',
     'capital one entertainment',
+    'citi nights dining',
   ],
 }
 

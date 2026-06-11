@@ -1,8 +1,5 @@
-import {
-  Utensils, ShoppingCart, Plane, Hotel, Car, Tv,
-  Pill, Fuel, Home, RefreshCw, CreditCard, Ticket, Train, Sparkles, Moon
-} from 'lucide-react'
 import type { OptimizedCategory } from '../lib/optimizer'
+import { getEarnRateIcon, getEarnRateLabel } from '../constants/categories'
 
 interface Props {
   result: OptimizedCategory
@@ -18,72 +15,10 @@ const issuerText: Record<string, string> = {
   'Bilt': 'text-gray-700',
 }
 
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  'dining': <Utensils size={16} />,
-  'groceries': <ShoppingCart size={16} />,
-  'travel': <Plane size={16} />,
-  'flights': <Plane size={16} />,
-  'hotels': <Hotel size={16} />,
-  'car rentals': <Car size={16} />,
-  'streaming': <Tv size={16} />,
-  'drugstores': <Pill size={16} />,
-  'gas': <Fuel size={16} />,
-  'rent': <Home size={16} />,
-  'rotating': <RefreshCw size={16} />,
-  'everything else': <CreditCard size={16} />,
-  'transit': <Train size={14} />,
-  'self-select': <Sparkles size={14} />,
-  'dining (citi nights)': <Moon size={14} />,
-  'citi travel portal - flights': <Plane size={14} />,
-  'entertainment': <Ticket size={16} />,
-  'chase travel portal': <Plane size={16} />,
-  'chase travel portal - flights': <Plane size={16} />,
-  'chase travel portal - hotels': <Hotel size={16} />,
-  'capital one travel portal - flights': <Plane size={16} />,
-  'capital one travel portal - hotels': <Hotel size={16} />,
-  'capital one travel portal - car rentals': <Car size={16} />,
-  'capital one entertainment': <Ticket size={16} />,
-  'amex travel portal - flights': <Plane size={16} />,
-  'amex travel portal - hotels': <Hotel size={16} />,
-  'amex travel portal - car rentals': <Car size={16} />,
-  'citi travel portal': <Plane size={16} />,
-}
-
-const CATEGORY_DISPLAY: Record<string, string> = {
-  'dining': 'Dining',
-  'groceries': 'Groceries',
-  'travel': 'Travel',
-  'flights': 'Flights',
-  'hotels': 'Hotels',
-  'car rentals': 'Car Rentals',
-  'streaming': 'Streaming',
-  'drugstores': 'Drugstores',
-  'gas': 'Gas',
-  'rent': 'Rent',
-  'rotating': 'Rotating',
-  'everything else': 'Everything Else',
-  'entertainment': 'Entertainment',
-  'chase travel portal': 'Chase Travel',
-  'chase travel portal - flights': 'Chase Flights',
-  'chase travel portal - hotels': 'Chase Hotels',
-  'capital one travel portal - flights': 'Capital One Flights',
-  'capital one travel portal - hotels': 'Capital One Hotels',
-  'capital one travel portal - car rentals': 'Capital One Car Rentals',
-  'capital one entertainment': 'Capital One Entertainment',
-  'amex travel portal - flights': 'Amex Flights',
-  'amex travel portal - hotels': 'Amex Hotels',
-  'amex travel portal - car rentals': 'Amex Car Rentals',
-  'citi travel portal': 'Citi Travel',
-  'citi travel portal - flights': 'Citi Flights',
-  'transit': 'Transit',
-  'self-select': 'Self-Select',
-  'dining (citi nights)': 'Dining (Nights)',
-}
-
 export default function OptimizerCard({ result, groupColor = 'bg-gray-50' }: Props) {
   const textClass = issuerText[result.issuer] ?? 'text-gray-700'
-  const icon = CATEGORY_ICONS[result.category] ?? <CreditCard size={16} />
-  const displayName = CATEGORY_DISPLAY[result.category] ?? result.category
+  const icon = getEarnRateIcon(result.category, 16)
+  const displayName = getEarnRateLabel(result.category)
   const rateDisplay = result.cardType === 'cashback'
     ? `${result.earnRate}%`
     : `${result.earnRate}x`

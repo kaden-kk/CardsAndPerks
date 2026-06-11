@@ -3,20 +3,13 @@ import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
 import type { CardTransferPartner } from '../types/index'
 import { Plane, Hotel } from 'lucide-react'
+import { ISSUER_COLORS } from '../constants/issuers'
 
 interface EcosystemGroup {
   issuer: string
   pointCurrency: string
   airlines: CardTransferPartner[]
   hotels: CardTransferPartner[]
-}
-
-const issuerColors: Record<string, string> = {
-  'Chase': 'bg-blue-600',
-  'American Express': 'bg-yellow-600',
-  'Capital One': 'bg-red-600',
-  'Citi': 'bg-blue-800',
-  'Bilt': 'bg-gray-950',
 }
 
 function formatRatio(value: number): string {
@@ -118,7 +111,7 @@ export default function PartnersPage() {
 
         <div className="space-y-6">
           {Object.values(ecosystems).map(ecosystem => {
-            const color = issuerColors[ecosystem.issuer] ?? 'bg-gray-600'
+            const color = ISSUER_COLORS[ecosystem.issuer] ?? 'bg-gray-600'
             const hasBoth = ecosystem.airlines.length > 0 && ecosystem.hotels.length > 0
 
             return (

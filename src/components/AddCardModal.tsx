@@ -2,21 +2,13 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAllCards } from '../hooks/useAllCards'
 import type { Card } from '../types/index'
+import { ISSUER_COLORS } from '../constants/issuers'
 
 interface Props {
   userId: string
   existingCardIds: string[]
   onClose: () => void
   onCardAdded: () => void
-}
-
-const issuerColors: Record<string, string> = {
-  'Chase': 'bg-blue-600',
-  'American Express': 'bg-yellow-600',
-  'Capital One': 'bg-red-600',
-  'Citi': 'bg-blue-800',
-  'Discover': 'bg-orange-500',
-  'Bilt': 'bg-gray-950',
 }
 
 export default function AddCardModal({ userId, existingCardIds, onClose, onCardAdded }: Props) {
@@ -92,7 +84,7 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
           )}
 
           {filtered.map(card => {
-            const color = issuerColors[card.issuer] ?? 'bg-gray-600'
+            const color = ISSUER_COLORS[card.issuer] ?? 'bg-gray-600'
             const isAdding = adding === card.id
             
             return (

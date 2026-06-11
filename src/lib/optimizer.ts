@@ -1,4 +1,5 @@
 import type { UserCard } from '../types/index'
+import { compareEarnRateCategories } from '../constants/categories'
 
 export interface OptimizedCategory {
   category: string
@@ -10,37 +11,6 @@ export interface OptimizedCategory {
   notes: string | null
   cardType: 'cashback' | 'points'
   tiedCards: { name: string; issuer: string }[]
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-  'dining': 'Dining',
-  'groceries': 'Groceries',
-  'travel': 'Travel',
-  'chase travel portal': 'Chase Travel Portal',
-  'chase travel portal - flights': 'Chase Portal Flights',
-  'chase travel portal - hotels': 'Chase Portal Hotels',
-  'capital one travel portal - flights': 'Capital One Portal Flights',
-  'capital one travel portal - hotels': 'Capital One Portal Hotels',
-  'capital one travel portal - car rentals': 'Capital One Portal Car Rentals',
-  'capital one entertainment': 'Capital One Entertainment',
-  'amex travel portal - flights': 'Amex Portal Flights',
-  'amex travel portal - hotels': 'Amex Portal Hotels',
-  'amex travel portal - car rentals': 'Amex Portal Car Rentals',
-  'citi travel portal': 'Citi Travel Portal',
-  'citi travel portal - flights': 'Citi Portal Flights',
-  'transit': 'Transit',
-  'self-select': 'Self-Select',
-  'dining (citi nights)': 'Dining (Citi Nights)',
-  'flights': 'Flights',
-  'hotels': 'Hotels',
-  'car rentals': 'Car Rentals',
-  'streaming': 'Streaming',
-  'drugstores': 'Drugstores',
-  'gas': 'Gas',
-  'rent': 'Rent',
-  'entertainment': 'Entertainment',
-  'rotating': 'Rotating Categories',
-  'everything else': 'Everything Else',
 }
 
 export function optimizeCards(userCards: UserCard[]): OptimizedCategory[] {
@@ -88,13 +58,7 @@ export function optimizeCards(userCards: UserCard[]): OptimizedCategory[] {
     }
   }
 
-  const order = Object.keys(CATEGORY_LABELS)
-  return Object.values(categoryMap).sort((a, b) => {
-    const ai = order.indexOf(a.category)
-    const bi = order.indexOf(b.category)
-    if (ai === -1 && bi === -1) return 0
-    if (ai === -1) return 1
-    if (bi === -1) return -1
-    return ai - bi
-  })
+  return Object.values(categoryMap).sort((a, b) =>
+    compareEarnRateCategories(a.category, b.category)
+  )
 }
