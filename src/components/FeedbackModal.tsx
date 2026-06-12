@@ -24,7 +24,14 @@ export default function FeedbackModal({ onClose }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!message.trim()) return
+    if (!message.trim()) {
+      setError('Please enter a message.')
+      return
+    }
+    if (message.trim().length > 2000) {
+      setError('Feedback must be under 2000 characters.')
+      return
+    }
     setLoading(true)
     setError(null)
 
@@ -106,6 +113,7 @@ export default function FeedbackModal({ onClose }: Props) {
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Message</label>
               <textarea
                 value={message}
+                maxLength={2000}
                 onChange={e => setMessage(e.target.value)}
                 rows={4}
                 placeholder="Tell us what's on your mind..."

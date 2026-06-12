@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabase'
 
 interface Props {
   onClose: () => void
@@ -8,68 +9,66 @@ interface Props {
 
 export default function DeleteAccountModal({ onClose }: Props) {
   const { deleteAccount } = useAuth()
-  const [confirming, setConfirming] = useState(false)
+  const [step, setStep] = useState<'confirm' | 'password'>('confirm')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleDelete = async () => {
+    if (!password) return
     setLoading(true)
+    setError(null)
+
+    // Re-authenticate first
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user?.email) {
+      setError('Could not verify your session.')
+      setLoading(false)
+      return
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password,
+    })
+
+    if (signInError) {
+      setError('Incorrect password.')
+      setLoading(false)
+      return
+    }
+
     const { error } = await deleteAccount()
     if (error) {
       setError('Something went wrong. Please try again.')
       setLoading(false)
+      return
     }
+
+    window.location.reload()
   }
-
   return (
-    <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl w-full max-w-md shadow-xl p-6"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <AlertTriangle size={18} className="text-red-600" />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold text-gray-900">Delete account</h2>
-              <p className="text-xs text-gray-500 mt-0.5">This cannot be undone</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <X size={18} />
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl p-6">
+        {step === 'confirm' ? (
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-xl p-4">
+                <AlertTriangle
+                  size={18}
+                  className="text-red-600 flex-shrink-0 mt-0.5"
+                />
 
-        <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-          This will permanently delete your account and remove all your saved cards. Your email and card data will be erased immediately.
-        </p>
+                <div>
+                  <p className="text-sm font-medium text-red-800">
+                    Final confirmation
+                  </p>
 
-        {!confirming ? (
-          <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => setConfirming(true)}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
-            >
-              Delete my account
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-900">Are you sure? This is permanent.</p>
-            {error && (
-              <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
-            )}
+                  <p className="text-xs text-red-700 mt-1">
+                    This action cannot be undone. Enter your password to permanently
+                    delete your account and all saved data.
+                  </p>
+                </div>
+              </div>
             <div className="flex gap-3">
               <button
                 onClick={onClose}
@@ -78,11 +77,41 @@ export default function DeleteAccountModal({ onClose }: Props) {
                 Cancel
               </button>
               <button
-                onClick={handleDelete}
-                disabled={loading}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                onClick={() => setStep('password')}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
               >
-                {loading ? 'Deleting...' : 'Yes, delete everything'}
+                Delete my account
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">Enter your password to confirm deletion.</p>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Your password"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+              autoFocus
+            />
+            {error && (
+              <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+            )}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleDelete}
+                disabled={loading || !password}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+              >
+                {loading ? 'Deleting...' : 'Delete account'}
               </button>
             </div>
           </div>

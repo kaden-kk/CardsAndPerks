@@ -20,8 +20,15 @@ export default function ForgotPasswordForm({ onBack }: Props) {
       redirectTo: `${window.location.origin}/reset-password`,
     })
 
-    if (error) setError(error.message)
-    else setMessage('Check your email for a password reset link.')
+    if (error) {
+      setMessage(
+        'If an account exists for that email, a reset link has been sent.'
+      )
+    } else {
+      setMessage(
+        'If an account exists for that email, a reset link has been sent.'
+      )
+    }
     setLoading(false)
   }
 

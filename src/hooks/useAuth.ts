@@ -16,16 +16,11 @@ export function useAuth() {
     })
 
     // Listen for the confirmation token in the URL
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        setSession(session)
-        setUser(session?.user ?? null)
-      }
-      if (event === 'SIGNED_OUT') {
-        setSession(null)
-        setUser(null)
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
     })
+    return () => subscription.unsubscribe()
   }, [])
 
   const signIn = async (email: string, password: string) => {

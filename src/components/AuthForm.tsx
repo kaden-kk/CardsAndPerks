@@ -16,6 +16,8 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,7 +43,12 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
       else setMessage('Check your email to confirm your account.')
     } else {
       const { error } = await signIn(email, password)
-      if (error) setError(error.message)
+      if (error) setError('Invalid email or password.')
+    }
+
+    if (isSignUp && (!hasUppercase || !hasNumber)) {
+      setPasswordError('Password must include an uppercase letter and a number')
+      return
     }
 
     setLoading(false)

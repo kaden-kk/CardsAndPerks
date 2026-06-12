@@ -8,15 +8,23 @@ interface Props {
 export default function ResetPasswordForm({ onDone }: Props) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [timedOut, setTimedOut] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
     // Supabase puts the recovery token in the URL hash
-    supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setReady(true)
     })
+  
+    const timer = setTimeout(() => setTimedOut(true), 5000)
+  
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timer)
+    }
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +50,16 @@ export default function ResetPasswordForm({ onDone }: Props) {
   if (!ready) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-400 text-sm">Verifying reset link...</p>
+        {timedOut ? (
+          <div className="text-center space-y-3">
+            <p className="text-gray-600 text-sm">This link may have expired.</p>
+            <button onClick={onDone} className="text-sm text-blue-600 hover:underline">
+              Request a new reset link
+            </button>
+          </div>
+        ) : (
+          <p className="text-gray-400 text-sm">Verifying reset link...</p>
+        )}
       </div>
     )
   }
