@@ -18,6 +18,7 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
   const [loading, setLoading] = useState(false)
   const hasUppercase = /[A-Z]/.test(password)
   const hasNumber = /[0-9]/.test(password)
+  const formError = passwordError ?? error
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,23 +36,25 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
       return
     }
 
-    setLoading(true)
-
-    if (isSignUp) {
-      const { error } = await signUp(email, password)
-      if (error) setError(error.message)
-      else setMessage('Check your email to confirm your account.')
-    } else {
-      const { error } = await signIn(email, password)
-      if (error) setError('Invalid email or password.')
-    }
-
     if (isSignUp && (!hasUppercase || !hasNumber)) {
       setPasswordError('Password must include an uppercase letter and a number')
       return
     }
 
-    setLoading(false)
+    setLoading(true)
+
+    try {
+      if (isSignUp) {
+        const { error } = await signUp(email, password)
+        if (error) setError(error.message)
+        else setMessage('Check your email to confirm your account.')
+      } else {
+        const { error } = await signIn(email, password)
+        if (error) setError(error.message)
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleToggleMode = () => {
@@ -136,15 +139,11 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
             </div>
           )}
 
-          {passwordError && (
-            <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{passwordError}</p>
+          {formError && (
+            <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{formError}</p>
           )}
 
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-lg">{error}</p>
-          )}
-
-          {message && (
+          {!formError && message && (
             <div className="text-sm text-green-600 bg-green-50 px-4 py-3 rounded-lg">
               <p className="font-medium">Check your email</p>
               <p className="mt-0.5 text-green-500">Click the confirmation link to activate your account. You'll be signed in automatically.</p>
