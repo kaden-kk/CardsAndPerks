@@ -1,15 +1,22 @@
+import { useMemo, useState } from 'react'
 import PartnersSkeleton from '../components/skeletons/PartnerSkeleton'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
-import type { CardTransferPartner } from '../types/index'
-import { Plane, Hotel } from 'lucide-react'
+import { Plane, Hotel, Search } from 'lucide-react'
 import { ISSUER_COLORS } from '../constants/issuers'
 
-interface EcosystemGroup {
+interface PartnerEntry {
   issuer: string
   pointCurrency: string
-  airlines: CardTransferPartner[]
-  hotels: CardTransferPartner[]
+  ratio: number
+}
+
+interface PartnerGroup {
+  partnerId: string
+  name: string
+  type: 'airline' | 'hotel'
+  entries: PartnerEntry[]
+  bestRatio: number
 }
 
 function formatRatio(value: number): string {
@@ -24,120 +31,208 @@ function getRatioColor(value: number): string {
   return 'text-gray-400'
 }
 
-function PartnerList({ partners, type }: { partners: CardTransferPartner[], type: 'airline' | 'hotel' }) {
-  if (partners.length === 0) return null
-
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3">
-        {type === 'airline'
-          ? <Plane size={14} className="text-blue-500" />
-          : <Hotel size={14} className="text-amber-500" />
-        }
-        <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-          {type === 'airline' ? 'Airlines' : 'Hotels'}
-        </p>
-      </div>
-      <div className="space-y-1">
-        {partners
-          .sort((a, b) => (a.partner.name ?? '').localeCompare(b.partner.name ?? ''))
-          .map(partner => (
-            <div key={partner.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${type === 'airline' ? 'bg-blue-400' : 'bg-amber-400'}`} />
-              <span className="text-sm text-gray-700 flex-1">{partner.partner.name}</span>
-              <span className={`text-xs font-medium ${getRatioColor(partner.ratio)}`}>
-                {formatRatio(partner.ratio)}
-              </span>
-            </div>
-          ))}
-      </div>
-    </div>
-  )
-}
+type Filter = 'all' | 'airline' | 'hotel'
+type SortMode = 'name' | 'ratio'
 
 export default function PartnersPage() {
   const { user } = useAuth()
   const { userCards, loading } = useUserCards(user?.id ?? '')
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<Filter>('all')
+  const [sort, setSort] = useState<SortMode>('name')
 
-  const ecosystems = userCards.reduce<Record<string, EcosystemGroup>>((acc, userCard) => {
-    const { card } = userCard
-    const transfers = card.card_transfer_partners
-    if (transfers.length === 0) return acc
+  const partnerGroups = useMemo(() => {
+    const map: Record<string, PartnerGroup> = {}
 
-    if (!acc[card.point_currency]) {
-      acc[card.point_currency] = {
-        issuer: card.issuer,
-        pointCurrency: card.point_currency,
-        airlines: [],
-        hotels: [],
+    for (const userCard of userCards) {
+      const { card } = userCard
+      for (const t of card.card_transfer_partners) {
+        if (!t.partner.name || !t.partner.type) continue
+
+        const key = t.partner.id
+        if (!map[key]) {
+          map[key] = {
+            partnerId: key,
+            name: t.partner.name,
+            type: t.partner.type,
+            entries: [],
+            bestRatio: t.ratio,
+          }
+        }
+
+        const group = map[key]
+        const alreadyHasCurrency = group.entries.some(
+          e => e.pointCurrency === card.point_currency
+        )
+        if (!alreadyHasCurrency) {
+          group.entries.push({
+            issuer: card.issuer,
+            pointCurrency: card.point_currency,
+            ratio: t.ratio,
+          })
+          if (t.ratio > group.bestRatio) group.bestRatio = t.ratio
+        } else {
+          // Same currency, different card — verify consistency.
+          // Confirmed clean in the DB, but guard against future drift.
+          const existing = group.entries.find(e => e.pointCurrency === card.point_currency)
+          if (existing && existing.ratio !== t.ratio) {
+            console.warn(
+              `Ratio mismatch for ${t.partner.name} within ${card.point_currency}: ${existing.ratio} vs ${t.ratio}`
+            )
+          }
+        }
       }
     }
 
-    for (const t of transfers) {
-      if (!t.partner.name || !t.partner.type) continue
-      const ecosystem = acc[card.point_currency]
-      if (!ecosystem) continue
+    return Object.values(map)
+  }, [userCards])
 
-      if (t.partner.type === 'airline' && !ecosystem.airlines.find(a => a.partner.name === t.partner.name)) {
-        ecosystem.airlines.push(t)
-      }
+  const filtered = useMemo(() => {
+    let result = partnerGroups
 
-      if ( t.partner.type === 'hotel' && !ecosystem.hotels.find(h => h.partner.name === t.partner.name)) {
-        ecosystem.hotels.push(t)
-      }
+    if (filter !== 'all') {
+      result = result.filter(g => g.type === filter)
     }
 
-    return acc
-  }, {})
+    if (search.trim()) {
+      const q = search.trim().toLowerCase()
+      result = result.filter(g => g.name.toLowerCase().includes(q))
+    }
+
+    return [...result].sort((a, b) => {
+      if (sort === 'ratio') {
+        if (b.bestRatio !== a.bestRatio) return b.bestRatio - a.bestRatio
+      }
+      return a.name.localeCompare(b.name)
+    })
+  }, [partnerGroups, filter, search, sort])
+
+  const airlines = filtered.filter(g => g.type === 'airline')
+  const hotels = filtered.filter(g => g.type === 'hotel')
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-4xl mx-auto px-6 py-8">
 
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">Transfer Partners</h1>
           <p className="text-gray-500 text-sm mt-1">
-            All transfer partners grouped by your points ecosystem
+            Compare transfer rates across all your point currencies
           </p>
         </div>
-    
+
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search partners..."
+              className="w-full border border-gray-200 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex gap-2">
+            {([
+              { key: 'all', label: 'All' },
+              { key: 'airline', label: 'Airlines' },
+              { key: 'hotel', label: 'Hotels' },
+            ] as { key: Filter; label: string }[]).map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filter === f.key
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'bg-white text-gray-500 border border-gray-200 hover:text-gray-800'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setSort(sort === 'ratio' ? 'name' : 'ratio')}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                sort === 'ratio'
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'bg-white text-gray-500 border border-gray-200 hover:text-gray-800'
+              }`}
+            >
+              Best ratio
+            </button>
+          </div>
+        </div>
+
         {loading && <PartnersSkeleton />}
 
-        {!loading && Object.keys(ecosystems).length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <p className="text-gray-500 text-sm">None of your cards have transfer partners.</p>
+            <p className="text-gray-500 text-sm">
+              {search ? 'No partners match your search.' : 'None of your cards have transfer partners.'}
+            </p>
           </div>
         )}
 
-        <div className="space-y-6">
-          {Object.values(ecosystems).map(ecosystem => {
-            const color = ISSUER_COLORS[ecosystem.issuer] ?? 'bg-gray-600'
-            const hasBoth = ecosystem.airlines.length > 0 && ecosystem.hotels.length > 0
-
-            return (
-              <div key={ecosystem.pointCurrency} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-
-                <div className={`${color} px-6 py-4`}>
-                  <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{ecosystem.issuer}</p>
-                  <h2 className="text-white font-semibold text-lg mt-0.5">{ecosystem.pointCurrency}</h2>
-                  <p className="text-white/50 text-xs mt-1">
-                    {ecosystem.airlines.length} airline{ecosystem.airlines.length !== 1 ? 's' : ''}
-                    {hasBoth && ' · '}
-                    {ecosystem.hotels.length > 0 && `${ecosystem.hotels.length} hotel${ecosystem.hotels.length !== 1 ? 's' : ''}`}
-                  </p>
-                </div>
-
-                <div className={`p-6 ${hasBoth ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}`}>
-                  <PartnerList partners={ecosystem.airlines} type="airline" />
-                  <PartnerList partners={ecosystem.hotels} type="hotel" />
-                </div>
-
-              </div>
-            )
-          })}
-        </div>
+        {!loading && filtered.length > 0 && (
+          <div className="space-y-8">
+            {airlines.length > 0 && (
+              <PartnerSection title="Airlines" icon={<Plane size={14} className="text-blue-500" />} groups={airlines} />
+            )}
+            {hotels.length > 0 && (
+              <PartnerSection title="Hotels" icon={<Hotel size={14} className="text-amber-500" />} groups={hotels} />
+            )}
+          </div>
+        )}
 
       </main>
+    </div>
+  )
+}
+
+function PartnerSection({
+  title,
+  icon,
+  groups,
+}: {
+  title: string
+  icon: React.ReactNode
+  groups: PartnerGroup[]
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        {icon}
+        <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">{title}</p>
+      </div>
+      <div className="space-y-2">
+        {groups.map(group => (
+          <div
+            key={group.partnerId}
+            className="bg-white rounded-xl border border-gray-100 px-4 py-3"
+          >
+            <p className="text-sm font-medium text-gray-800 mb-2">{group.name}</p>
+            <div className="flex flex-wrap gap-2">
+              {group.entries
+                .sort((a, b) => b.ratio - a.ratio)
+                .map(entry => {
+                  const color = ISSUER_COLORS[entry.issuer] ?? 'bg-gray-600'
+                  return (
+                    <div
+                      key={entry.pointCurrency}
+                      className="flex items-center gap-1.5 bg-gray-50 rounded-lg pl-1.5 pr-2.5 py-1"
+                    >
+                      <span className={`w-2 h-2 rounded-full ${color}`} />
+                      <span className="text-xs text-gray-600">{entry.pointCurrency}</span>
+                      <span className={`text-xs font-semibold ${getRatioColor(entry.ratio)}`}>
+                        {formatRatio(entry.ratio)}
+                      </span>
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
