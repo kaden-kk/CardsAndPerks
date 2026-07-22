@@ -43,6 +43,9 @@ export const EARN_RATE_CATEGORIES: Record<string, CategoryConfig> = {
   'amex travel portal - car rentals': { label: 'Amex Car Rentals', icon: Car },
   'citi travel portal': { label: 'Citi Travel', icon: Plane },
   'citi travel portal - flights': { label: 'Citi Flights', icon: Plane },
+  'apple purchases': { label: 'Apple Purchases', icon: Smartphone },
+  'select partners': { label: 'Select Partners', icon: Sparkles },
+  'apple pay': { label: 'Apple Pay', icon: Smartphone },
 }
 
 export const EARN_RATE_CATEGORY_ORDER = Object.keys(EARN_RATE_CATEGORIES)
@@ -62,6 +65,21 @@ export const PROTECTION_CATEGORIES: Record<string, CategoryConfig> = {
   'rental_car': { label: 'Rental Car', icon: Car },
   'travel_assistance': { label: 'Travel Assistance', icon: AlertCircle },
 }
+
+export const CATEGORY_GROUPS: Record<string, string[]> = {
+  'Everyday': ['dining', 'groceries', 'gas', 'transit', 'self-select', 'apple purchases', 'select partners', 'apple pay', 'everything else'],
+  'Travel': ['flights', 'hotels', 'car rentals', 'travel', 'chase travel portal', 'chase travel portal - flights', 'chase travel portal - hotels', 'capital one travel portal - flights', 'capital one travel portal - hotels', 'capital one travel portal - car rentals', 'amex travel portal - flights', 'amex travel portal - hotels', 'amex travel portal - car rentals', 'citi travel portal', 'citi travel portal - flights'],
+  'Lifestyle': ['streaming', 'drugstores', 'rent', 'rotating', 'entertainment', 'capital one entertainment', 'citi nights dining'],
+}
+
+export const GROUP_COLORS: Record<string, string> = {
+  'Everyday': 'bg-green-50', 'Travel': 'bg-blue-50', 'Lifestyle': 'bg-amber-50',
+}
+
+export const GROUP_ICON_COLORS: Record<string, string> = {
+  'Everyday': 'text-green-600', 'Travel': 'text-blue-600', 'Lifestyle': 'text-amber-600',
+}
+
 
 export function getEarnRateLabel(category: string): string {
   return EARN_RATE_CATEGORIES[category]?.label ?? category
@@ -97,4 +115,16 @@ export function compareEarnRateCategories(a: string, b: string): number {
   if (ai === -1) return 1
   if (bi === -1) return -1
   return ai - bi
+}
+
+export function groupEarnRateResults<T extends { category: string; effectiveReturn: number }>(results: T[]): Record<string, T[]> {
+  const grouped: Record<string, T[]> = {}
+  const used = new Set<string>()
+  for (const [group, categories] of Object.entries(CATEGORY_GROUPS)) {
+    const matches = results.filter(r => categories.includes(r.category)).sort((a, b) => b.effectiveReturn - a.effectiveReturn)
+    if (matches.length > 0) { grouped[group] = matches; matches.forEach(m => used.add(m.category)) }
+  }
+  const uncategorized = results.filter(r => !used.has(r.category)).sort((a, b) => b.effectiveReturn - a.effectiveReturn)
+  if (uncategorized.length > 0) grouped['Other'] = uncategorized
+  return grouped
 }

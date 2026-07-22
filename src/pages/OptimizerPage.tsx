@@ -3,86 +3,13 @@ import { useUserCards } from '../hooks/useUserCards'
 import { optimizeCards } from '../lib/optimizer'
 import OptimizerCard from '../components/OptimizerCard'
 import OptimizerSkeleton from '../components/skeletons/OptimizerSkeleton'
-import type { OptimizedCategory } from '../lib/optimizer'
-
-const CATEGORY_GROUPS: Record<string, string[]> = {
-  'Everyday': [
-    'dining',
-    'groceries',
-    'gas',
-    'transit',
-    'self-select',
-    'everything else',
-  ],
-  'Travel': [
-    'flights',
-    'hotels',
-    'car rentals',
-    'travel',
-    'chase travel portal',
-    'chase travel portal - flights',
-    'chase travel portal - hotels',
-    'capital one travel portal - flights',
-    'capital one travel portal - hotels',
-    'capital one travel portal - car rentals',
-    'amex travel portal - flights',
-    'amex travel portal - hotels',
-    'amex travel portal - car rentals',
-    'citi travel portal',
-    'citi travel portal - flights',
-  ],
-  'Lifestyle': [
-    'streaming',
-    'drugstores',
-    'rent',
-    'rotating',
-    'entertainment',
-    'capital one entertainment',
-    'citi nights dining',
-  ],
-}
-
-const GROUP_COLORS: Record<string, string> = {
-  'Everyday': 'bg-green-50',
-  'Travel': 'bg-blue-50',
-  'Lifestyle': 'bg-amber-50',
-}
-
-const GROUP_ICON_COLORS: Record<string, string> = {
-  'Everyday': 'text-green-600',
-  'Travel': 'text-blue-600',
-  'Lifestyle': 'text-amber-600',
-}
-
-function groupResults(results: OptimizedCategory[]) {
-  const grouped: Record<string, OptimizedCategory[]> = {}
-  const used = new Set<string>()
-
-  for (const [group, categories] of Object.entries(CATEGORY_GROUPS)) {
-    const matches = results
-      .filter(r => categories.includes(r.category))
-      .sort((a, b) => b.effectiveReturn - a.effectiveReturn)
-
-    if (matches.length > 0) {
-      grouped[group] = matches
-      matches.forEach(m => used.add(m.category))
-    }
-  }
-
-  const uncategorized = results
-    .filter(r => !used.has(r.category))
-    .sort((a, b) => b.effectiveReturn - a.effectiveReturn)
-
-  if (uncategorized.length > 0) grouped['Other'] = uncategorized
-
-  return grouped
-}
+import { groupEarnRateResults, GROUP_COLORS, GROUP_ICON_COLORS } from '../constants/categories'
 
 export default function OptimizerPage() {
   const { user } = useAuth()
   const { userCards, loading } = useUserCards(user?.id ?? '')
   const results = optimizeCards(userCards)
-  const grouped = groupResults(results)
+  const grouped = groupEarnRateResults(results)
 
   return (
     <div className="min-h-screen bg-gray-50">
