@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, X } from 'lucide-react'
-import type { UserCard, Card, CardPerk, CardProtection } from '../types/index'
+import type { UserCard, Card, CardProtection } from '../types/index'
 import {
   getEarnRateIcon,
   getEarnRateLabel,
@@ -45,7 +45,7 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-gray-900">{card.name}</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{totalCount} perks</p>
+            <p className="text-xs text-gray-500 mt-0.5">{totalCount} benefits</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X size={18} />
@@ -56,9 +56,7 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
           {Object.entries(perkGroups).map(([category, perks]) => (
             <div key={`perk-${category}`}>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-gray-400">
-                  {getPerkIcon(category)}
-                </span>
+                <span className="text-gray-400">{getPerkIcon(category)}</span>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                   {getPerkLabel(category)}
                 </p>
@@ -87,9 +85,7 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
           {Object.entries(protectionGroups).map(([category, protections]) => (
             <div key={`protection-${category}`}>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-gray-400">
-                  {getProtectionIcon(category)}
-                </span>
+                <span className="text-gray-400">{getProtectionIcon(category)}</span>
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                   {getProtectionLabel(category)}
                 </p>
@@ -127,10 +123,28 @@ export default function CardItem({ userCard, onRemove }: Props) {
   const color = ISSUER_COLORS[card.issuer] ?? 'bg-gray-600'
   const [showDetails, setShowDetails] = useState(false)
 
-  const topPerks = card.card_perks
-    .filter(p => p.value)
-    .slice(0, 4)
+  type BenefitPreview = {
+    id: string
+    name: string
+    displayValue: string | null
+    icon: React.ReactNode
+  }
 
+  const perkPreviews: BenefitPreview[] = card.card_perks.map(cp => ({
+    id: cp.id,
+    name: cp.perk.name,
+    displayValue: cp.value,
+    icon: getPerkIcon(cp.perk.category),
+  }))
+
+  const protectionPreviews: BenefitPreview[] = card.card_protections.map(cp => ({
+    id: cp.id,
+    name: cp.protection.name,
+    displayValue: cp.coverage_amount,
+    icon: getProtectionIcon(cp.protection.category),
+  }))
+
+  const topBenefits = [...perkPreviews, ...protectionPreviews].slice(0, 4)
   const totalBenefits = card.card_perks.length + card.card_protections.length
 
   return (
@@ -142,16 +156,20 @@ export default function CardItem({ userCard, onRemove }: Props) {
             <div>
               <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{card.issuer}</p>
               <h3 className="text-white font-semibold text-base mt-0.5">{card.name}</h3>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className="text-white/70 text-xs">{card.point_currency}</span>
                 <span className="text-white/30">·</span>
                 <span className="text-white/70 text-xs">
                   {card.annual_fee === 0 ? 'No annual fee' : `$${card.annual_fee}/yr`}
                 </span>
-                <span className="text-white/30">·</span>
-                <span className={`text-xs text-white/70 font-medium`}>
-                  {card.card_type === 'cashback' ? 'Cash back' : 'Points'}
-                </span>
+                {card.foreign_transaction_fee > 0 && (
+                  <>
+                    <span className="text-white/30">·</span>
+                    <span className="text-xs text-amber-200 font-medium">
+                      {card.foreign_transaction_fee}% Foreign Fee
+                    </span>
+                  </>
+                )}
               </div>
             </div>
             <button
@@ -171,10 +189,8 @@ export default function CardItem({ userCard, onRemove }: Props) {
               {card.earn_rates.map(earnRate => (
                 <div key={earnRate.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 text-gray-500 min-w-0">
-                    <span className="flex-shrink-0">
-                      {getEarnRateIcon(earnRate.category)}
-                    </span>
-                    <span className="text-xs text-gray-600 truncate capitalize">
+                    <span className="flex-shrink-0">{getEarnRateIcon(earnRate.category)}</span>
+                    <span className="text-xs text-gray-600 truncate">
                       {getEarnRateLabel(earnRate.category)}
                     </span>
                   </div>
@@ -189,32 +205,30 @@ export default function CardItem({ userCard, onRemove }: Props) {
           </div>
 
           <div className="px-4 py-3">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Perks</p>
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Benefits</p>
             {totalBenefits === 0 ? (
-              <p className="text-xs text-gray-400">No perks data</p>
+              <p className="text-xs text-gray-400">No benefits data</p>
             ) : (
               <>
                 <div className="space-y-1.5">
-                  {topPerks.map(cp => (
-                    <div key={cp.id} className="flex items-start gap-1.5">
-                      <span className="text-gray-400 flex-shrink-0 mt-0.5">
-                        {getPerkIcon(cp.perk.category)}
-                      </span>
+                  {topBenefits.map(b => (
+                    <div key={b.id} className="flex items-start gap-1.5">
+                      <span className="text-gray-400 flex-shrink-0 mt-0.5">{b.icon}</span>
                       <div className="min-w-0">
-                        <p className="text-xs text-gray-700 leading-tight">{cp.perk.name}</p>
-                        {cp.value && (
-                          <p className="text-xs font-medium text-green-700 mt-0.5">{cp.value}</p>
+                        <p className="text-xs text-gray-700 leading-tight">{b.name}</p>
+                        {b.displayValue && (
+                          <p className="text-xs font-medium text-green-700 mt-0.5">{b.displayValue}</p>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
-                {totalBenefits > 0 && (
+                {totalBenefits > topBenefits.length && (
                   <button
                     onClick={() => setShowDetails(true)}
                     className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
                   >
-                    <span>All {totalBenefits} perks</span>
+                    <span>All {totalBenefits} benefits</span>
                     <ChevronDown size={12} />
                   </button>
                 )}

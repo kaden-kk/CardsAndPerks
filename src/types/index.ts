@@ -64,6 +64,7 @@ export interface Card {
   issuer: string
   network: string
   annual_fee: number
+  foreign_transaction_fee: number   // ← new
   point_currency: string
   point_currency_value: number
   card_type: 'cashback' | 'points'
@@ -71,7 +72,6 @@ export interface Card {
   card_perks: CardPerk[]
   card_protections: CardProtection[]
   card_transfer_partners: CardTransferPartner[]
-  redemption_values: RedemptionValue[]
 }
 
 export interface UserCard {
