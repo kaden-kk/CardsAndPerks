@@ -223,7 +223,7 @@ export default function CardItem({ userCard, onRemove }: Props) {
                     </div>
                   ))}
                 </div>
-                {totalBenefits > topBenefits.length && (
+                {totalBenefits > 0 && (
                   <button
                     onClick={() => setShowDetails(true)}
                     className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
