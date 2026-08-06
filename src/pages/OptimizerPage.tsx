@@ -1,13 +1,39 @@
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
+import { useAllCards } from '../hooks/useAllCards'
 import { optimizeCards } from '../lib/optimizer'
 import OptimizerCard from '../components/OptimizerCard'
 import OptimizerSkeleton from '../components/skeletons/OptimizerSkeleton'
 import { groupEarnRateResults, GROUP_COLORS, GROUP_ICON_COLORS } from '../constants/categories'
+import { useMemo } from 'react'
+import type { UserCard } from '../types/index'
 
-export default function OptimizerPage() {
+interface Props {
+  isGuest: boolean
+  guestCardIds: string[]
+}
+
+export default function OptimizerPage({ isGuest, guestCardIds }: Props) {
   const { user } = useAuth()
-  const { userCards, loading } = useUserCards(user?.id ?? '')
+  const { userCards: realUserCards, loading: realLoading } = useUserCards(isGuest ? '' : user?.id ?? '')
+  const { cards: allCards, loading: allCardsLoading } = useAllCards()
+
+  const guestUserCards: UserCard[] = useMemo(() => {
+    if (!isGuest) return []
+    return guestCardIds
+      .map(id => allCards.find(c => c.id === id))
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+      .map(card => ({
+        id: card.id,
+        card_id: card.id,
+        added_at: new Date().toISOString(),
+        card,
+      }))
+  }, [isGuest, guestCardIds, allCards])
+
+  const userCards = isGuest ? guestUserCards : realUserCards
+  const loading = isGuest ? allCardsLoading : realLoading
+
   const results = optimizeCards(userCards)
   const grouped = groupEarnRateResults(results)
 

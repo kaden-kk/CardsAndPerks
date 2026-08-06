@@ -2,11 +2,12 @@ import { useAuth } from '../hooks/useAuth'
 
 interface Props {
   onGetStarted: () => void
+  onContinueAsGuest: () => void
   onPrivacy: () => void
   onTerms: () => void
 }
 
-export default function LandingPage({ onGetStarted, onPrivacy, onTerms }: Props) {
+export default function LandingPage({ onGetStarted, onContinueAsGuest, onPrivacy, onTerms }: Props) {
   const { user } = useAuth()
 
   return (
@@ -28,13 +29,11 @@ export default function LandingPage({ onGetStarted, onPrivacy, onTerms }: Props)
       {/* Hero */}
       <div className="relative flex flex-col items-center justify-center px-6 pt-20 pb-32 text-center">
 
-        {/* Badge */}
         <div className="relative z-10 inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 mb-8">
           <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
           <span className="text-xs font-medium text-blue-600 tracking-wide">Free to use · No card required</span>
         </div>
 
-        {/* Headline */}
         <h1 className="relative z-10 text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-6 max-w-4xl text-gray-900">
           Stop leaving
           <br />
@@ -47,12 +46,20 @@ export default function LandingPage({ onGetStarted, onPrivacy, onTerms }: Props)
           Add your credit cards and instantly see which one to use for every purchase — dining, travel, groceries, and more.
         </p>
 
-        <button
-          onClick={onGetStarted}
-          className="relative z-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
-        >
-          Get started for free
-        </button>
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3">
+          <button
+            onClick={onGetStarted}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5"
+          >
+            Get started for free
+          </button>
+          <button
+            onClick={onContinueAsGuest}
+            className="text-gray-500 hover:text-gray-800 font-medium px-6 py-3.5 text-sm transition-colors"
+          >
+            Try it out first →
+          </button>
+        </div>
 
         {/* Floating card mockups */}
         <div className="relative z-10 mt-20 w-full max-w-4xl">

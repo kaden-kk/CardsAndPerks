@@ -1,27 +1,59 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
+import { useAllCards } from '../hooks/useAllCards'
 import { supabase } from '../lib/supabase'
-import {CreditCardIcon} from 'lucide-react'
+import { CreditCardIcon } from 'lucide-react'
 import CardItem from '../components/CardItem'
 import AddCardModal from '../components/AddCardModal'
 import CardsSkeleton from '../components/skeletons/CardsSkeleton'
+import type { UserCard } from '../types/index'
 
-export default function CardsPage() {
+interface Props {
+  isGuest: boolean
+  guestCardIds: string[]
+  onAddGuestCard: (cardId: string) => void
+  onRemoveGuestCard: (cardId: string) => void
+}
+
+export default function CardsPage({ isGuest, guestCardIds, onAddGuestCard, onRemoveGuestCard }: Props) {
   const { user } = useAuth()
-  const { userCards, loading, refetch } = useUserCards(user?.id ?? '')
+  const { userCards: realUserCards, loading: realLoading, refetch } = useUserCards(isGuest ? '' : user?.id ?? '')
+  const { cards: allCards, loading: allCardsLoading } = useAllCards()
   const [showModal, setShowModal] = useState(false)
 
+  // Guests have no user_cards rows — assemble the same UserCard[] shape
+  // locally from the full catalog + whatever's in sessionStorage.
+  const guestUserCards: UserCard[] = useMemo(() => {
+    if (!isGuest) return []
+    return guestCardIds
+      .map(id => allCards.find(c => c.id === id))
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+      .map(card => ({
+        id: card.id,
+        card_id: card.id,
+        added_at: new Date().toISOString(),
+        card,
+      }))
+  }, [isGuest, guestCardIds, allCards])
+
+  const userCards = isGuest ? guestUserCards : realUserCards
+  const loading = isGuest ? allCardsLoading : realLoading
+
   const handleCardAdded = useCallback(() => {
-    refetch()
-  }, [refetch])
+    if (!isGuest) refetch()
+  }, [isGuest, refetch])
 
   const handleRemove = useCallback(async (userCardId: string) => {
-  await supabase.from('user_cards').delete().eq('id', userCardId)
-  refetch()
-}, [refetch])
+    if (isGuest) {
+      onRemoveGuestCard(userCardId) // for guests, userCardId === card.id
+      return
+    }
+    await supabase.from('user_cards').delete().eq('id', userCardId)
+    refetch()
+  }, [isGuest, onRemoveGuestCard, refetch])
 
-  const existingCardIds = userCards.map(uc => uc.card_id)
+  const existingCardIds = isGuest ? guestCardIds : realUserCards.map(uc => uc.card_id)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,10 +108,12 @@ export default function CardsPage() {
 
       {showModal && (
         <AddCardModal
-          userId={user!.id}
+          userId={isGuest ? undefined : user?.id}
+          isGuest={isGuest}
           existingCardIds={existingCardIds}
           onClose={() => setShowModal(false)}
           onCardAdded={handleCardAdded}
+          onGuestCardAdded={onAddGuestCard}
         />
       )}
 

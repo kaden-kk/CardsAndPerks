@@ -5,13 +5,22 @@ import type { Card } from '../types/index'
 import { ISSUER_COLORS } from '../constants/issuers'
 
 interface Props {
-  userId: string
+  userId?: string | undefined
+  isGuest: boolean
   existingCardIds: string[]
   onClose: () => void
   onCardAdded: () => void
+  onGuestCardAdded: (cardId: string) => void
 }
 
-export default function AddCardModal({ userId, existingCardIds, onClose, onCardAdded }: Props) {
+export default function AddCardModal({
+  userId,
+  isGuest,
+  existingCardIds,
+  onClose,
+  onCardAdded,
+  onGuestCardAdded,
+}: Props) {
   const { cards, loading } = useAllCards()
   const [search, setSearch] = useState('')
   const [adding, setAdding] = useState<string | null>(null)
@@ -25,11 +34,21 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
 
   const addCard = async (card: Card) => {
     setAdding(card.id)
-    await supabase.from('user_cards').insert({
-      user_id: userId,
-      card_id: card.id,
-    })
-    onCardAdded()
+
+    if (isGuest) {
+      onGuestCardAdded(card.id)
+    } else {
+      if (!userId) {
+        setAdding(null)
+        return
+      }
+      await supabase.from('user_cards').insert({
+        user_id: userId,
+        card_id: card.id,
+      })
+      onCardAdded()
+    }
+
     setRecentlyAdded(card.id)
     setAdding(null)
     setTimeout(() => setRecentlyAdded(null), 2000)
@@ -45,7 +64,6 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
         onClick={e => e.stopPropagation()}
       >
 
-        {/* Header */}
         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Add a card</h2>
@@ -59,7 +77,6 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
           </button>
         </div>
 
-        {/* Search */}
         <div className="px-6 py-4 border-b border-gray-100">
           <input
             type="text"
@@ -71,12 +88,11 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
           />
         </div>
 
-        {/* Card list */}
         <div className="overflow-y-auto flex-1 px-6 py-4 space-y-3">
           {loading && (
             <p className="text-sm text-gray-400 text-center py-8">Loading cards...</p>
           )}
-          
+
           {!loading && filtered.length === 0 && (
             <p className="text-sm text-gray-400 text-center py-8">
               {search ? 'No cards match your search' : 'All available cards have been added'}
@@ -86,7 +102,7 @@ export default function AddCardModal({ userId, existingCardIds, onClose, onCardA
           {filtered.map(card => {
             const color = ISSUER_COLORS[card.issuer] ?? 'bg-gray-600'
             const isAdding = adding === card.id
-            
+
             return (
               <button
                 key={card.id}

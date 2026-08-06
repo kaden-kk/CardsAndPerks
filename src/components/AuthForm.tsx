@@ -4,9 +4,10 @@ import { useAuth } from '../hooks/useAuth'
 interface Props {
   onBack?: () => void
   onForgotPassword?: () => void
+  onSignedUp?: (userId: string) => void | Promise<void>
 }
 
-export default function AuthForm({ onBack, onForgotPassword }: Props) {
+export default function AuthForm({ onBack, onForgotPassword, onSignedUp }: Props) {
   const { signIn, signUp } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
@@ -30,27 +31,28 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
       setPasswordError('Passwords do not match')
       return
     }
-
     if (isSignUp && password.length < 8) {
       setPasswordError('Password must be at least 8 characters')
       return
     }
-
     if (isSignUp && (!hasUppercase || !hasNumber)) {
       setPasswordError('Password must include an uppercase letter and a number')
       return
     }
 
     setLoading(true)
-
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password)
-        if (error) setError(error.message)
-        else setMessage('Check your email to confirm your account.')
+        const { data, error } = await signUp(email, password)
+        if (error) {
+          setError(error.message)
+        } else {
+          setMessage('Check your email to confirm your account.')
+          if (data.user) await onSignedUp?.(data.user.id)
+        }
       } else {
         const { error } = await signIn(email, password)
-        if (error) setError(error.message)
+        if (error) setError('Invalid email or password.')
       }
     } finally {
       setLoading(false)
@@ -70,10 +72,7 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
       <div className="bg-white p-8 rounded-2xl shadow-sm w-full max-w-md">
 
         {onBack && (
-          <button
-            onClick={onBack}
-            className="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-block transition-colors"
-          >
+          <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-block transition-colors">
             ← Back
           </button>
         )}
@@ -114,9 +113,7 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
 
           {isSignUp && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm password</label>
               <input
                 type="password"
                 value={confirmPassword}
@@ -129,11 +126,7 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
           )}
           {!isSignUp && (
             <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={onForgotPassword}
-                className="text-xs text-blue-600 hover:underline"
-              >
+              <button type="button" onClick={onForgotPassword} className="text-xs text-blue-600 hover:underline">
                 Forgot password?
               </button>
             </div>
@@ -161,10 +154,7 @@ export default function AuthForm({ onBack, onForgotPassword }: Props) {
 
         <p className="text-center text-sm text-gray-500 mt-6">
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button
-            onClick={handleToggleMode}
-            className="text-blue-600 hover:underline font-medium"
-          >
+          <button onClick={handleToggleMode} className="text-blue-600 hover:underline font-medium">
             {isSignUp ? 'Sign in' : 'Sign up'}
           </button>
         </p>

@@ -10,6 +10,8 @@ interface Props {
   page: Page
   onPageChange: (page: Page) => void
   onShowSettings: () => void
+  isGuest: boolean
+  onShowAuth: () => void
 }
 
 const TABS: { key: Page; label: string }[] = [
@@ -18,7 +20,7 @@ const TABS: { key: Page; label: string }[] = [
   { key: 'partners', label: 'Transfer Partners' },
 ]
 
-export default function Navbar({ page, onPageChange, onShowSettings }: Props) {
+export default function Navbar({ page, onPageChange, onShowSettings, isGuest, onShowAuth }: Props) {
   const { user } = useAuth()
   const { profile } = useProfile(user?.id ?? '')
 
@@ -48,7 +50,14 @@ export default function Navbar({ page, onPageChange, onShowSettings }: Props) {
       </div>
 
       <div className="flex items-center gap-3">
-        {profile ? (
+        {isGuest ? (
+          <button
+            onClick={onShowAuth}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+          >
+            Sign up to save your cards
+          </button>
+        ) : profile ? (
           <Avatar
             email={user?.email ?? ''}
             color={profile.avatar_color}

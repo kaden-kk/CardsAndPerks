@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react'
 import PartnersSkeleton from '../components/skeletons/PartnerSkeleton'
 import { useAuth } from '../hooks/useAuth'
 import { useUserCards } from '../hooks/useUserCards'
+import { useAllCards } from '../hooks/useAllCards'
 import { Plane, Hotel, Search } from 'lucide-react'
 import { ISSUER_COLORS } from '../constants/issuers'
+import type { UserCard } from '../types/index'
 
 interface PartnerEntry {
   issuer: string
@@ -34,12 +36,34 @@ function getRatioColor(value: number): string {
 type Filter = 'all' | 'airline' | 'hotel'
 type SortMode = 'name' | 'ratio'
 
-export default function PartnersPage() {
+interface Props {
+  isGuest: boolean
+  guestCardIds: string[]
+}
+
+export default function PartnersPage({ isGuest, guestCardIds }: Props) {
   const { user } = useAuth()
-  const { userCards, loading } = useUserCards(user?.id ?? '')
+  const { userCards: realUserCards, loading: realLoading } = useUserCards(isGuest ? '' : user?.id ?? '')
+  const { cards: allCards, loading: allCardsLoading } = useAllCards()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [sort, setSort] = useState<SortMode>('name')
+
+  const guestUserCards: UserCard[] = useMemo(() => {
+    if (!isGuest) return []
+    return guestCardIds
+      .map(id => allCards.find(c => c.id === id))
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+      .map(card => ({
+        id: card.id,
+        card_id: card.id,
+        added_at: new Date().toISOString(),
+        card,
+      }))
+  }, [isGuest, guestCardIds, allCards])
+
+  const userCards = isGuest ? guestUserCards : realUserCards
+  const loading = isGuest ? allCardsLoading : realLoading
 
   const partnerGroups = useMemo(() => {
     const map: Record<string, PartnerGroup> = {}
@@ -72,8 +96,6 @@ export default function PartnersPage() {
           })
           if (t.ratio > group.bestRatio) group.bestRatio = t.ratio
         } else {
-          // Same currency, different card — verify consistency.
-          // Confirmed clean in the DB, but guard against future drift.
           const existing = group.entries.find(e => e.pointCurrency === card.point_currency)
           if (existing && existing.ratio !== t.ratio) {
             console.warn(
