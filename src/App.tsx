@@ -23,6 +23,7 @@ export default function App() {
   const guestCards = useGuestCards()
   const [page, setPage] = useState<Page>('cards')
   const [showAuth, setShowAuth] = useState(false)
+  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn') 
   const [guestMode, setGuestMode] = useState(false)
   const [staticPage, setStaticPage] = useState<StaticPage>(null)
   const [showSettings, setShowSettings] = useState(false)
@@ -31,8 +32,12 @@ export default function App() {
   const [showResetPassword, setShowResetPassword] = useState(false)
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') setShowResetPassword(true)
+  
+      if (event === 'SIGNED_IN' && session?.user) {
+        migrateGuestCards(session.user.id)
+      }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -47,9 +52,19 @@ export default function App() {
   // Migrate guest cards into real user_cards rows after sign-up
   const migrateGuestCards = async (userId: string) => {
     if (guestCards.guestCardIds.length === 0) return
-    for (const cardId of guestCards.guestCardIds) {
-      await supabase.from('user_cards').insert({ user_id: userId, card_id: cardId })
+  
+    const results = await Promise.all(
+      guestCards.guestCardIds.map(cardId =>
+        supabase.from('user_cards').insert({ user_id: userId, card_id: cardId })
+      )
+    )
+  
+    const failures = results.filter(r => r.error)
+    if (failures.length > 0) {
+      console.error('Guest card migration failures:', failures.map(f => f.error))
+      return // don't clear guest cards if any insert failed — keep them for retry
     }
+  
     guestCards.clearGuestCards()
   }
 
@@ -65,7 +80,7 @@ export default function App() {
     <AuthForm
       onBack={() => setShowAuth(false)}
       onForgotPassword={() => setShowForgotPassword(true)}
-      onSignedUp={migrateGuestCards}
+      initialMode={authMode}
     />
   )
 
@@ -98,7 +113,10 @@ export default function App() {
         onPageChange={setPage}
         onShowSettings={() => setShowSettings(true)}
         isGuest={isGuest}
-        onShowAuth={() => setShowAuth(true)}
+        onShowAuth={() => {
+          setAuthMode('signUp')
+          setShowAuth(true)
+        }}
       />
 
       {page === 'cards' && (

@@ -4,12 +4,12 @@ import { useAuth } from '../hooks/useAuth'
 interface Props {
   onBack?: () => void
   onForgotPassword?: () => void
-  onSignedUp?: (userId: string) => void | Promise<void>
+  initialMode?: 'signIn' | 'signUp'
 }
 
-export default function AuthForm({ onBack, onForgotPassword, onSignedUp }: Props) {
+export default function AuthForm({ onBack, onForgotPassword, initialMode = 'signIn' }: Props) {
   const { signIn, signUp } = useAuth()
-  const [isSignUp, setIsSignUp] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signUp')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -43,13 +43,9 @@ export default function AuthForm({ onBack, onForgotPassword, onSignedUp }: Props
     setLoading(true)
     try {
       if (isSignUp) {
-        const { data, error } = await signUp(email, password)
-        if (error) {
-          setError(error.message)
-        } else {
-          setMessage('Check your email to confirm your account.')
-          if (data.user) await onSignedUp?.(data.user.id)
-        }
+        const { error } = await signUp(email, password)
+        if (error) setError(error.message)
+        else setMessage('Check your email to confirm your account.')
       } else {
         const { error } = await signIn(email, password)
         if (error) setError('Invalid email or password.')
