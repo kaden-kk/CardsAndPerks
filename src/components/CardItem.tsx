@@ -93,14 +93,12 @@ function CardDetailsModal({ card, onClose }: { card: Card; onClose: () => void }
               <div className="space-y-2">
                 {protections.map((cp: CardProtection) => (
                   <div key={cp.id} className="bg-gray-50 rounded-lg px-3 py-2.5">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium text-gray-800">{cp.protection.name}</p>
-                      {cp.coverage_amount && (
-                        <span className="text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full flex-shrink-0">
-                          {cp.coverage_amount}
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-sm font-medium text-gray-800">{cp.protection.name}</p>
+                    {cp.coverage_amount && (
+                      <span className="inline-block mt-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md">
+                        {cp.coverage_amount}
+                      </span>
+                    )}
                     {cp.protection.description && (
                       <p className="text-xs text-gray-500 mt-1">{cp.protection.description}</p>
                     )}

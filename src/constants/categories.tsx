@@ -46,6 +46,7 @@ export const EARN_RATE_CATEGORIES: Record<string, CategoryConfig> = {
   'apple purchases': { label: 'Apple Purchases', icon: Smartphone },
   'select partners': { label: 'Select Partners', icon: Sparkles },
   'apple pay': { label: 'Apple Pay', icon: Smartphone },
+  'vacation homes': { label: 'Vacation Homes', icon: Home },
 }
 
 export const EARN_RATE_CATEGORY_ORDER = Object.keys(EARN_RATE_CATEGORIES)
@@ -68,7 +69,7 @@ export const PROTECTION_CATEGORIES: Record<string, CategoryConfig> = {
 
 export const CATEGORY_GROUPS: Record<string, string[]> = {
   'Everyday': ['dining', 'groceries', 'gas', 'transit', 'self-select', 'apple purchases', 'select partners', 'apple pay', 'everything else'],
-  'Travel': ['flights', 'hotels', 'car rentals', 'travel', 'chase travel portal', 'chase travel portal - flights', 'chase travel portal - hotels', 'capital one travel portal - flights', 'capital one travel portal - hotels', 'capital one travel portal - car rentals', 'amex travel portal - flights', 'amex travel portal - hotels', 'amex travel portal - car rentals', 'citi travel portal', 'citi travel portal - flights'],
+  'Travel': ['flights', 'hotels', 'car rentals', 'travel', 'vacation homes', 'chase travel portal', 'chase travel portal - flights', 'chase travel portal - hotels', 'capital one travel portal - flights', 'capital one travel portal - hotels', 'capital one travel portal - car rentals', 'amex travel portal - flights', 'amex travel portal - hotels', 'amex travel portal - car rentals', 'citi travel portal', 'citi travel portal - flights'],
   'Lifestyle': ['streaming', 'drugstores', 'rent', 'rotating', 'entertainment', 'capital one entertainment', 'citi nights dining'],
 }
 
