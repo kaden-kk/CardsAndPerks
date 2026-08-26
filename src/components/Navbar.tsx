@@ -30,7 +30,7 @@ export default function Navbar({ page, onPageChange, onShowSettings, isGuest, on
         onClick={() => onPageChange('cards')}
         className="text-xl font-semibold text-blue-600"
       >
-        KadoHub
+        Cards & Perks
       </button>
 
       <div className="flex items-center gap-1">

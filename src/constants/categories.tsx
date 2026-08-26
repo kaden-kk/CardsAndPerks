@@ -26,10 +26,13 @@ export const EARN_RATE_CATEGORIES: Record<string, CategoryConfig> = {
   'gas': { label: 'Gas', icon: Fuel },
   'rent': { label: 'Rent', icon: Home },
   'rotating': { label: 'Rotating Categories', icon: RefreshCw },
+  'lyft':{label: 'Lyft', icon : Car},
   'everything else': { label: 'Everything Else', icon: CreditCard },
   'entertainment': { label: 'Entertainment', icon: Tv },
   'transit': { label: 'Transit', icon: Train },
   'self-select': { label: 'Self-Select', icon: Sparkles },
+  'bilt dining': { label: 'Bilt Dining', icon: Utensils },
+  'bilt travel portal': { label: 'Bilt Travel', icon: Plane },
   'citi nights dining': { label: 'Citi Nights Dining', icon: Moon },
   'chase travel portal': { label: 'Chase Travel', icon: Plane },
   'chase travel portal - flights': { label: 'Chase Flights', icon: Plane },
@@ -69,8 +72,11 @@ export const PROTECTION_CATEGORIES: Record<string, CategoryConfig> = {
 
 export const CATEGORY_GROUPS: Record<string, string[]> = {
   'Everyday': ['dining', 'groceries', 'gas', 'transit', 'self-select', 'apple purchases', 'select partners', 'apple pay', 'everything else'],
-  'Travel': ['flights', 'hotels', 'car rentals', 'travel', 'vacation homes', 'chase travel portal', 'chase travel portal - flights', 'chase travel portal - hotels', 'capital one travel portal - flights', 'capital one travel portal - hotels', 'capital one travel portal - car rentals', 'amex travel portal - flights', 'amex travel portal - hotels', 'amex travel portal - car rentals', 'citi travel portal', 'citi travel portal - flights'],
-  'Lifestyle': ['streaming', 'drugstores', 'rent', 'rotating', 'entertainment', 'capital one entertainment', 'citi nights dining'],
+  'Travel': ['flights', 'hotels', 'car rentals', 'lyft', 'travel', 'vacation homes', 'chase travel portal', 'chase travel portal - flights', 
+    'chase travel portal - hotels', 'capital one travel portal - flights', 'capital one travel portal - hotels', 'capital one travel portal - car rentals', 
+    'amex travel portal - flights', 'amex travel portal - hotels', 'amex travel portal - car rentals', 'citi travel portal', 'citi travel portal - flights', 
+    'bilt travel portal'],
+  'Lifestyle': ['streaming', 'drugstores', 'rent', 'rotating', 'entertainment', 'capital one entertainment', 'citi nights dining', 'bilt dining'],
 }
 
 export const GROUP_COLORS: Record<string, string> = {
