@@ -1,4 +1,4 @@
-# Cards & Perks
+# Cards&Perks
 
 A credit card rewards optimizer that helps you figure out which card in your wallet to use for any purchase, compare transfer partners across your point currencies, and discover perks and protections you didn't know you had.
 

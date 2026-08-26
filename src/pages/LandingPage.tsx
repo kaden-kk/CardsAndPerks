@@ -16,7 +16,7 @@ export default function LandingPage({ onGetStarted, onContinueAsGuest, onPrivacy
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-6 relative z-10 border-b border-gray-200/60">
         <span className="text-xl font-bold tracking-tight text-gray-900">
-          Kado<span className="text-blue-600">Hub</span>
+          Cards&Perks<span className="text-blue-600"></span>
         </span>
         <button
           onClick={onGetStarted}
@@ -165,7 +165,7 @@ export default function LandingPage({ onGetStarted, onContinueAsGuest, onPrivacy
 
       {/* Footer */}
       <div className="border-t border-gray-200/60 px-8 py-6 flex items-center justify-between">
-        <span className="text-gray-400 text-sm">© 2026 Cards & Perks</span>
+        <span className="text-gray-400 text-sm">© 2026 Cards&Perks</span>
         <div className="flex items-center gap-6">
           <button onClick={onPrivacy} className="text-gray-400 hover:text-gray-600 text-sm transition-colors">Privacy</button>
           <button onClick={onTerms} className="text-gray-400 hover:text-gray-600 text-sm transition-colors">Terms</button>
